@@ -1,0 +1,338 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: #f9fafb;
+  transition: all 0.3s ease;
+}
+
+/* Dark mode styles */
+.dark body {
+  background-color: #111827;
+  color: #f3f4f6;
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.btn-secondary {
+  background-color: #e5e7eb;
+  color: #374151;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #d1d5db;
+}
+
+.btn-outline {
+  border: 2px solid #2563eb;
+  color: #2563eb;
+  background: transparent;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-outline:hover {
+  background-color: #2563eb;
+  color: white;
+}
+
+/* Dark mode for btn-outline */
+.dark .btn-outline {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.dark .btn-outline:hover {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Dark mode for btn-primary */
+.dark .btn-primary {
+  background-color: #3b82f6;
+}
+
+.dark .btn-primary:hover {
+  background-color: #2563eb;
+}
+
+/* Dark mode for btn-secondary */
+.dark .btn-secondary {
+  background-color: #374151;
+  color: #d1d5db;
+}
+
+.dark .btn-secondary:hover {
+  background-color: #4b5563;
+}
+
+/* Card styles */
+.card {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.dark .card {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+/* Input styles */
+.input-field {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input-field:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.dark .input-field {
+  background: #1f2937;
+  border-color: #4b5563;
+  color: #f3f4f6;
+}
+
+.dark .input-field::placeholder {
+  color: #9ca3af;
+}
+
+.dark .input-field:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+/* Navbar styles */
+.navbar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.dark .navbar {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Navbar text colors */
+.navbar .text-gray-700 {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.navbar .text-gray-700:hover {
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+.dark .navbar .text-gray-700 {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.dark .navbar .text-gray-700:hover {
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+/* Logo color for navbar */
+.navbar .text-primary-600 {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Search input in navbar */
+.navbar .input-field {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #374151;
+}
+
+.navbar .input-field::placeholder {
+  color: #6b7280;
+}
+
+.navbar .input-field:focus {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.dark .navbar .input-field {
+  background: rgba(31, 41, 55, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #f3f4f6;
+}
+
+.dark .navbar .input-field::placeholder {
+  color: #9ca3af;
+}
+
+.dark .navbar .input-field:focus {
+  background: rgba(31, 41, 55, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+/* Footer styles */
+.footer {
+  background: linear-gradient(to right, #111827, #3d3d3d);
+  color: #f9fafb;
+  transition: all 0.3s ease;
+}
+
+.dark .footer {
+  background: linear-gradient(to right, #0f172a, #1e293b);
+  color: #f1f5f9;
+}
+
+/* Light mode override for footer */
+@media (prefers-color-scheme: light) {
+  .footer {
+    background: linear-gradient(to right, #f8fafc, #f1f5f9);
+    color: #111827;
+  }
+}
+
+/* Class-based light mode for footer */
+:global(.light) .footer {
+  background: linear-gradient(to right, #f8fafc, #f1f5f9) !important;
+  color: #111827 !important;
+}
+
+/* Additional dark mode styles */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  color: #f9fafb;
+}
+
+.dark p {
+  color: #e5e7eb;
+}
+
+.dark .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+}
+
+/* Dark mode for disabled buttons */
+.dark .btn-primary:disabled {
+  background-color: #374151;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.dark .btn-outline:disabled {
+  border-color: #4b5563;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+/* Dark mode for borders */
+.dark .border-gray-300 {
+  border-color: #4b5563;
+}
+
+.dark .border-gray-400 {
+  border-color: #6b7280;
+}
+
+/* Dark mode for backgrounds */
+.dark .bg-gray-50 {
+  background-color: #1f2937;
+}
+
+.dark .bg-gray-100 {
+  background-color: #374151;
+}
+
+.dark .bg-white {
+  background-color: #1f2937;
+}
+
+/* Dark mode for text colors */
+.dark .text-gray-900 {
+  color: #f9fafb;
+}
+
+.dark .text-gray-800 {
+  color: #e5e7eb;
+}
+
+.dark .text-gray-700 {
+  color: #d1d5db;
+}
+
+.dark .text-gray-600 {
+  color: #9ca3af;
+}
+
+.dark .text-gray-500 {
+  color: #6b7280;
+}
+
+.dark .text-gray-400 {
+  color: #4b5563;
+}
+
+/* Dark mode for hover states */
+.dark .hover\:bg-gray-100:hover {
+  background-color: #374151;
+}
+
+.dark .hover\:bg-gray-200:hover {
+  background-color: #4b5563;
+}
+
+/* Dark mode for focus states */
+.dark .focus\:border-primary-500:focus {
+  border-color: #3b82f6;
+}
+
+.dark .focus\:ring-primary-500:focus {
+  --tw-ring-color: #3b82f6;
+}
+
+/* Dark mode for primary colors */
+.dark .text-primary-600 {
+  color: #60a5fa;
+}
+
+.dark .bg-primary-100 {
+  background-color: #1e3a8a;
+}
+
+.dark .text-primary-800 {
+  color: #93c5fd;
+}
