@@ -1,14 +1,14 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
+  <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 main">
+    <div class="max-w-md w-full space-y-8 form">
       <div>
         <div class="flex justify-center">
           <BookOpen class="h-12 w-12 text-primary-600 dark:text-primary-400" />
         </div>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-gray-600">
           {{ isLoginMode ? 'Đăng nhập vào BookShop' : 'Đăng ký tài khoản' }}
         </h2>
-        <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
+        <p class="mt-2 text-center text-sm text-black-900 dark:text-black">
           Hoặc
           <button @click="toggleMode"
             class="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300">
@@ -21,7 +21,7 @@
         <div class="rounded-md shadow-sm space-y-4">
           <!-- Email -->
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label for="email" class="block text-sm font-medium text-black dark:text-black-300">
               Email
             </label>
             <input id="email" v-model="form.email" type="email" required
@@ -31,7 +31,7 @@
 
           <!-- Password -->
           <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label for="password" class="block text-sm font-medium text-black dark:text-black-300">
               Mật khẩu
             </label>
             <input id="password" v-model="form.password" type="password" required
@@ -41,7 +41,7 @@
 
           <!-- Name (chỉ hiển thị khi đăng ký) -->
           <div v-if="!isLoginMode">
-            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label for="name" class="block text-sm font-medium text-black dark:text-black-300">
               Họ đệm
             </label>
             <input id="name" v-model="form.first_name" type="text" required
@@ -51,7 +51,7 @@
 
           <!-- Phone (chỉ hiển thị khi đăng ký) -->
           <div v-if="!isLoginMode">
-            <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label for="phone" class="block text-sm font-medium text-black dark:text-black-300">
               Tên
             </label>
             <input id="phone" v-model="form.last_name" type="tel"
@@ -165,3 +165,47 @@ const handleSubmit = async () => {
   }
 }
 </script>
+
+<style>
+  .form {
+  background: rgba(255, 255, 255, 0.85); /* Nền bán trong suốt */
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(8px);
+  width: 100%;
+  max-width: 420px;
+  transition: all 0.3s ease;
+}
+
+.form:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+}
+
+.main {
+  background: url('/src/assets/images/background-image.jpg') no-repeat center center fixed;
+  background-size: cover;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Điều chỉnh input cho hiện đại hơn nếu chưa dùng Tailwind toàn bộ */
+input {
+  transition: all 0.3s ease;
+}
+
+input:focus {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.4);
+}
+
+/* Responsive mobile nhỏ hơn */
+@media (max-width: 640px) {
+  .form {
+    padding: 1.5rem;
+    width: 100%;
+  }
+}
+</style>
