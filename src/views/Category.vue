@@ -25,15 +25,15 @@
 
         <!-- Main content area -->
         <div class="p-6 lg:p-8">
-          <div class="max-w-7xl mx-auto">
-            <!-- Header Section -->
-            <div class="mb-8">
-              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <div class="mb-4 sm:mb-0">
-                  <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Quản lý danh mục</h1>
-                  <p class="text-gray-600 dark:text-gray-300 mt-1">
-                    Quản lý danh mục sách trong hệ thống
-                  </p>
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Quản lý danh mục</h1>
+              <p class="text-gray-600 dark:text-gray-300 mt-1">Quản lý danh mục sách trong hệ thống</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 px-4 py-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 bg-green-500 rounded-full"></div>
                   <span class="text-sm text-gray-600 dark:text-gray-300">
                     {{ categoryStore.totalCategories }} danh mục
                   </span>
