@@ -136,7 +136,7 @@ const changeSection = (section) => {
       router.push('/admin') // When books page is created
       break
     case 'categories':
-      // router.push('/admin/categories') // When categories page is created
+      router.push('/admin/categories') // When categories page is created
       break
     case 'authors':
       // Already on authors page
