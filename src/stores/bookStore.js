@@ -1,6 +1,9 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import axios from "@/utils/axios";
+import { useCategoryStore } from "./categoryStore";
+import { useAuthorStore } from "./authorStore";
+
 export const useBookStore = defineStore("book", () => {
   // State
   const books = ref([]);
@@ -40,38 +43,43 @@ export const useBookStore = defineStore("book", () => {
     try {
       const response = await axios.get("/books/get-books");
       books.value = response.data.data;
-
-      const uniqueCategoriesMap = new Map();
-      const uniqueAuthorsMap = new Map();
-
-      response.data.data.forEach((book) => {
-        const category = book.category;
-        if (category?.category_id) {
-          uniqueCategoriesMap.set(category.category_id, {
-            id: category.category_id,
-            name: category.name,
-          });
-        }
-
-        const author = book.author;
-        if (author?.author_id) {
-          uniqueAuthorsMap.set(author.author_id, { id: author.author_id, name: author.name });
-        }
-      });
-
-      categories.value = [
-        { id: null, name: "Tất cả" },
-        ...Array.from(uniqueCategoriesMap.values()),
-      ];
-      authors.value = [
-        { id: null, name: "Tất cả" },
-        ...Array.from(uniqueAuthorsMap.values()),
-      ];
     } catch (err) {
       console.error("Lỗi fetch books:", err);
       error.value = "Không thể tải dữ liệu sách.";
     } finally {
       isLoading.value = false;
+    }
+  };
+
+  const fetchCategoriesAndAuthors = async () => {
+    try {
+      const categoryStore = useCategoryStore();
+      const authorStore = useAuthorStore();
+      
+      // Fetch categories from category store
+      await categoryStore.fetchCategories();
+      const categoryList = categoryStore.categories.map(cat => ({
+        id: cat.category_id,
+        name: cat.name
+      }));
+      
+      // Fetch authors from author store
+      await authorStore.fetchAuthors();
+      const authorList = authorStore.authors.map(author => ({
+        id: author.author_id,
+        name: author.name
+      }));
+
+      categories.value = [
+        { id: null, name: "Tất cả" },
+        ...categoryList,
+      ];
+      authors.value = [
+        { id: null, name: "Tất cả" },
+        ...authorList,
+      ];
+    } catch (err) {
+      console.error("Lỗi fetch categories/authors:", err);
     }
   };
 
@@ -152,6 +160,7 @@ export const useBookStore = defineStore("book", () => {
     isLoading,
     error,
     fetchBooks,
+    fetchCategoriesAndAuthors,
     addBook,
     updateBook,
     deleteBook,

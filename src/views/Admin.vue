@@ -347,6 +347,7 @@ const bookForm = reactive({
 
 onMounted(() => {
   bookStore.fetchBooks()
+  bookStore.fetchCategoriesAndAuthors()
   authorStore.fetchAuthors()
 })
 
@@ -373,7 +374,8 @@ const resetForm = () => {
   })
 }
 
-const editBook = (book) => {
+const editBook = async (book) => {
+  await bookStore.fetchCategoriesAndAuthors()
   editingBook.value = book
   bookForm.title = book.title
   bookForm.price = book.price
@@ -536,8 +538,9 @@ const cancelDeleteMultiple = () => {
   showDeleteModal.value = false
 }
 
-const openAddBookModal = () => {
+const openAddBookModal = async () => {
   resetForm()
+  await bookStore.fetchCategoriesAndAuthors()
   showAddModal.value = true
 }
 const closeModal = () => {
