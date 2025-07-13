@@ -261,6 +261,7 @@ import {
   Languages
 } from 'lucide-vue-next'
 import { useBookStore } from '@/stores/bookStore'
+import { useAuthorStore } from '@/stores/authorStore'
 import AdminSidebar from '@/components/admin/AdminSidebar.vue'
 import ImageUploader from '@/components/admin/ImageUploader.vue'
 import axios from 'axios'
@@ -272,10 +273,11 @@ import DeleteBooksModal from '@/components/admin/DeleteBooksModal.vue'
 import { useToastStore } from '@/stores/toastStore'
 
 const bookStore = useBookStore()
+const authorStore = useAuthorStore()
 
 const books = computed(() => bookStore.books)
 const categories = computed(() => bookStore.categories)
-const authors = computed(() => bookStore.authors)
+const authors = computed(() => authorStore.authors)
 
 // Sidebar and navigation
 const activeSection = ref('books')
@@ -319,6 +321,7 @@ const bookForm = reactive({
 
 onMounted(() => {
   bookStore.fetchBooks()
+  authorStore.fetchAuthors()
 })
 
 const formatPrice = (price) => {
