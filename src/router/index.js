@@ -5,6 +5,7 @@ import Cart from '@/views/Cart.vue'
 import Checkout from '@/views/Checkout.vue'
 import Admin from '@/views/Admin.vue'
 import Authors from '@/views/Authors.vue'
+import Category from '@/views/Category.vue'
 import Login from '@/views/Login.vue'
 import Profile from '@/views/Profile.vue'
 import Orders from '@/views/Orders.vue'
@@ -62,6 +63,12 @@ const router = createRouter({
       path: '/admin/authors',
       name: 'admin-authors',
       component: Authors,
+      meta: { requiresAdmin: true }
+    },
+    {
+      path: '/admin/categories',
+      name: 'admin-categories',
+      component: Category,
       meta: { requiresAdmin: true }
     },
   ]
