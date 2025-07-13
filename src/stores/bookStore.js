@@ -55,7 +55,7 @@ export const useBookStore = defineStore("book", () => {
 
         const author = book.author;
         if (author?.author_id) {
-          uniqueAuthorsMap.set(author.id, { id: author.author_id, name: author.name });
+          uniqueAuthorsMap.set(author.author_id, { id: author.author_id, name: author.name });
         }
       });
 

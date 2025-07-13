@@ -26,7 +26,7 @@
             </label>
             <select v-model="bookForm.author_id" required class="input-field">
               <option disabled value="">Chọn tác giả</option>
-              <option v-for="author in authors.filter(a => a.name !== 'Tất cả')" :key="author.author_id ?? 'null'" :value="author.id">
+              <option v-for="author in authors.filter(a => a.name !== 'Tất cả')" :key="author.id" :value="author.id">
                 {{ author.name }}
               </option>
             </select>
