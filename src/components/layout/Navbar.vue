@@ -178,6 +178,7 @@ const initTheme = () => {
 
 onMounted(() => {
   initTheme()
+  applyTheme() // Apply theme ngay sau khi init
 
   // Listen for system theme changes only if no manual preference
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {

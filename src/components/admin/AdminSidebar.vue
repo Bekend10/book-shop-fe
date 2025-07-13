@@ -47,18 +47,18 @@
             </button>
           </li>
           <li>
-            <button
-              @click="$emit('change-section', 'authors')"
+            <router-link
+              to="/admin/authors"
               :class="[
                 'w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors',
-                activeSection === 'authors' 
+                $route.name === 'admin-authors' 
                   ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300' 
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               ]"
             >
               <User class="h-4 w-4" />
               <span>Quản lý tác giả</span>
-            </button>
+            </router-link>
           </li>
           <li>
             <button
