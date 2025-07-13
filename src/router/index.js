@@ -5,6 +5,8 @@ import Cart from '@/views/Cart.vue'
 import Checkout from '@/views/Checkout.vue'
 import Admin from '@/views/Admin.vue'
 import Login from '@/views/Login.vue'
+import Profile from '@/views/Profile.vue'
+import Orders from '@/views/Orders.vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useToastStore } from '@/stores/toastStore'
 
@@ -38,9 +40,22 @@ const router = createRouter({
       component: Login
     },
     {
+      path: '/profile',
+      name: 'profile',
+      component: Profile,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/orders',
+      name: 'orders',
+      component: Orders,
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/admin',
       name: 'admin',
-      component: Admin
+      component: Admin,
+      meta: { requiresAdmin: true }
     },
   ]
 })
