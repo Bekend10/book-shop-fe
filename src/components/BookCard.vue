@@ -1,47 +1,47 @@
 <template>
   <div class="card hover:shadow-lg transition-shadow duration-300 h-full flex flex-col">
     <div class="relative">
-      <img :src="book.image" :alt="book.title" class="w-full h-48 sm:h-56 md:h-64 object-cover" />
-      <div v-if="!book.inStock" class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs">
+      <img :src="book.image_url" :alt="book.title" class="w-full h-48 sm:h-56 md:h-64 object-cover" />
+      <div v-if="book.isBn" class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs">
         Hết hàng
       </div>
-      <div v-if="book.originalPrice > book.price"
+      <div v-if="book.price_origin > book.price"
         class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs">
-        {{ Math.round((1 - book.price / book.originalPrice) * 100) }}% OFF
+        {{ Math.round((1 - book.price / book.price_origin) * 100) }}% OFF
       </div>
     </div>
 
     <div class="p-3 sm:p-4 flex flex-col flex-1">
       <h3 class="font-semibold text-base sm:text-lg mb-2 line-clamp-2">{{ book.title }}</h3>
-      <p class="mb-2 text-sm">{{ book.author }}</p>
-      <p class="text-primary-600 dark:text-primary-400 text-xs sm:text-sm mb-2">{{ book.category }}</p>
+      <p class="mb-2 text-sm">{{ book.author.name }}</p>
+      <p class="text-primary-600 dark:text-primary-400 text-xs sm:text-sm mb-2">{{ book.category.name }}</p>
 
       <div class="flex items-center mb-2 text-sm">
         <div class="flex items-center">
           <Star class="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
           <span class="text-xs sm:text-sm  ml-1">{{ book.rating }}</span>
         </div>
-        <span class="text-xs sm:text-sm ml-2">({{ book.reviews }})</span>
+        <span class="text-xs sm:text-sm ml-2">({{ book.count_review }})</span>
       </div>
 
       <div class="flex items-center justify-between mb-3 sm:mb-4">
         <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
           <span class="text-base sm:text-lg font-bold">{{ formatPrice(book.price) }}</span>
-          <span v-if="book.originalPrice > book.price" class="text-xs sm:text-sm original-price">
-            {{ formatPrice(book.originalPrice) }}
+          <span v-if="book.price_origin > book.price" class="text-xs sm:text-sm original-price">
+            {{ formatPrice(book.price_origin) }}
           </span>
         </div>
       </div>
 
       <div class="flex flex-col gap-2 mt-auto">
-        <router-link :to="`/book/${book.id}`" class="w-full btn-outline text-center py-2 px-3 text-xs sm:text-sm">
+        <router-link :to="`/book/${book.book_id}`" class="w-full btn-outline text-center py-2 px-3 text-xs sm:text-sm">
           Xem chi tiết
         </router-link>
-        <button @click="addToCart" :disabled="!book.inStock || isInCart(book.id)"
+        <button @click="addToCart" :disabled="!book.is_bn"
           class="w-full btn-primary disabled:bg-gray-400 disabled:cursor-not-allowed disabled:dark:bg-gray-600 py-2 px-3 text-xs sm:text-sm flex items-center justify-center">
           <ShoppingCart class="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-          <span class="hidden sm:inline">{{ isInCart(book.id) ? 'Đã thêm' : 'Thêm vào giỏ' }}</span>
-          <span class="sm:hidden">{{ isInCart(book.id) ? 'Đã thêm' : 'Thêm' }}</span>
+          <span class="hidden sm:inline">{{ isInCart(book.book_id) ? 'Đã thêm' : 'Thêm vào giỏ' }}</span>
+          <span class="sm:hidden">{{ isInCart(book.book_id) ? 'Đã thêm' : 'Thêm' }}</span>
         </button>
       </div>
     </div>
@@ -72,6 +72,7 @@ const isInCart = (bookId) => {
 const addToCart = () => {
   cartStore.addToCart(props.book)
 }
+
 </script>
 
 <style scoped>

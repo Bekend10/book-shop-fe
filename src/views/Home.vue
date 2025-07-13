@@ -6,8 +6,11 @@
         <h1 class="text-4xl md:text-6xl font-bold mb-6">Khám phá thế giới tri thức</h1>
         <p class="text-xl md:text-2xl mb-8 text-primary-100">Hàng nghìn cuốn sách hay đang chờ bạn khám phá</p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <button @click="scrollToBooks" class="btn bg-white text-primary-600 hover:bg-gray-100  px-6 py-3 rounded-xl">Khám phá ngay</button>
-          <button class="btn border-2 border-white text-white hover:bg-white hover:text-primary-600 px-6 py-3 rounded-xl">Tìm hiểu thêm</button>
+          <button @click="scrollToBooks"
+            class="btn bg-white text-primary-600 hover:bg-gray-100  px-6 py-3 rounded-xl">Khám phá ngay</button>
+          <button
+            class="btn border-2 border-white text-white hover:bg-white hover:text-primary-600 px-6 py-3 rounded-xl">Tìm
+            hiểu thêm</button>
         </div>
       </div>
     </section>
@@ -15,9 +18,12 @@
     <!-- Featured Books -->
     <section class="py-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-3xl font-bold text-center mb-12">Sách nổi bật</h2>
+        <div class="text-center mb-8">
+          <h2 class="text-3xl font-bold">Sách nổi bật</h2>
+          <hr class="border-gray-300 dark:border-gray-600 my-6" />
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <BookCard v-for="book in featuredBooks" :key="book.id" :book="book" />
+          <BookCard v-for="book in filteredBooks" :key="book.book_id" :book="book" />
         </div>
       </div>
     </section>
@@ -25,19 +31,18 @@
     <!-- Category Filter -->
     <section ref="booksSection" class="py-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-3xl font-bold text-center mb-8">Danh mục sách</h2>
+        <div class="category-title">
+          <h2 class="text-3xl font-bold text-center mb-8">Danh mục sách</h2>
+          <hr class="border-gray-300 dark:border-gray-600 mb-6" />
+        </div>
         <div class="flex flex-wrap justify-center gap-2 mb-8">
-          <button
-            v-for="category in categories"
-            :key="category"
-            @click="setCategory(category)"
-            :class="['category-button', selectedCategory === category ? 'active' : '']"
-          >
-            {{ category }}
+          <button v-for="category in categories" :key="category" @click="setCategory(category.name)"
+            :class="['category-button', selectedCategory === category.id ? 'active' : '']">
+            {{ category.name }}
           </button>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <BookCard v-for="book in filteredBooks" :key="book.id" :book="book" />
+          <BookCard v-for="book in filteredBooks" :key="book.book_id" :book="book" />
         </div>
         <div v-if="filteredBooks.length === 0" class="text-center py-12">
           <BookOpen class="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -70,20 +75,25 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { BookOpen } from 'lucide-vue-next'
 import BookCard from '@/components/BookCard.vue'
 import { useBookStore } from '@/stores/bookStore'
 
 const bookStore = useBookStore()
 const booksSection = ref(null)
+
 const books = computed(() => bookStore.books)
 const categories = computed(() => bookStore.categories)
 const selectedCategory = computed(() => bookStore.selectedCategory)
 const filteredBooks = computed(() => bookStore.filteredBooks)
-const featuredBooks = computed(() => bookStore.featuredBooks)
 const setCategory = (category) => bookStore.setCategory(category)
 const scrollToBooks = () => booksSection.value?.scrollIntoView({ behavior: 'smooth' })
+
+onMounted(() => {
+  bookStore.fetchBooks()
+})
+
 </script>
 
 <style scoped>
@@ -148,6 +158,7 @@ const scrollToBooks = () => booksSection.value?.scrollIntoView({ behavior: 'smoo
 .no-books {
   color: #6b7280;
 }
+
 /* Class-based dark mode */
 :global(.dark) .no-books {
   color: #9ca3af;

@@ -1,16 +1,19 @@
 <template>
   <div id="app">
-    <Navbar />
+    <Navbar v-if="!authLoading" />
     <Toast />
     <main class="min-h-screen">
-      <RouterView />
+      <RouterView v-if="!authLoading" />
+      <div v-else class="flex items-center justify-center min-h-screen">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
     </main>
-    <Footer />
+    <Footer v-if="!authLoading" />
   </div>
 </template>
 
 <script setup>
-import { onMounted, onErrorCaptured } from 'vue'
+import { ref, onMounted, onErrorCaptured } from 'vue'
 import { RouterView } from 'vue-router'
 import Navbar from '@/components/layout/Navbar.vue'
 import Footer from '@/components/layout/Footer.vue'
@@ -20,6 +23,7 @@ import { useToastStore } from '@/stores/toastStore'
 
 const authStore = useAuthStore()
 const toastStore = useToastStore()
+const authLoading = ref(true)
 
 // Khởi tạo theme khi app load
 const initTheme = () => {
@@ -48,10 +52,27 @@ onMounted(async () => {
   initTheme()
   
   try {
+    // Khởi tạo auth store từ localStorage
     await authStore.initializeAuth()
   } catch (error) {
     console.error('Failed to initialize auth:', error)
+  } finally {
+    // Luôn set authLoading = false sau khi hoàn thành
+    authLoading.value = false
   }
+
+  // Lắng nghe thay đổi localStorage từ tab khác
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'access_token') {
+      if (e.newValue === null) {
+        // Token bị xóa từ tab khác - logout
+        authStore.logout()
+      } else if (e.newValue !== authStore.token) {
+        // Token mới từ tab khác - cập nhật
+        authStore.initializeAuth()
+      }
+    }
+  })
 })
 
 // Xử lý lỗi toàn cục

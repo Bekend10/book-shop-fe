@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // Cấu hình base URL
-axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:7096/api/v1'
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'https://localhost:7096/api/v1'
 
 // Request interceptor - thêm token vào mỗi request
 axios.interceptors.request.use(

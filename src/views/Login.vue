@@ -161,7 +161,7 @@ const handleSubmit = async () => {
     }
   } catch (error) {
     console.error('Authentication error:', error)
-    toastStore.error('Có lỗi xảy ra, vui lòng thử lại sau.')
+    toastStore.error('Tài khoản hoặc mật khẩu không đúng. Vui lòng thử lại.')
   }
 }
 </script>
