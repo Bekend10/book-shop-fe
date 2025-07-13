@@ -248,6 +248,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   Plus,
   Edit,
@@ -274,6 +275,7 @@ import { useToastStore } from '@/stores/toastStore'
 
 const bookStore = useBookStore()
 const authorStore = useAuthorStore()
+const router = useRouter()
 
 const books = computed(() => bookStore.books)
 const categories = computed(() => bookStore.categories)
@@ -284,8 +286,32 @@ const activeSection = ref('books')
 const sidebarOpen = ref(false)
 
 const changeSection = (section) => {
-  activeSection.value = section
   sidebarOpen.value = false // Close mobile sidebar
+  
+  // Navigate to different admin pages
+  switch (section) {
+    case 'books':
+      activeSection.value = 'books'
+      // Stay on current page
+      break
+    case 'categories':
+      router.push('/admin/categories')
+      break
+    case 'authors':
+      router.push('/admin/authors')
+      break
+    case 'publishers':
+      // router.push('/admin/publishers') // When publishers page is created
+      break
+    case 'orders':
+      // router.push('/admin/orders') // When orders page is created
+      break
+    case 'users':
+      // router.push('/admin/users') // When users page is created
+      break
+    default:
+      activeSection.value = section
+  }
 }
 
 // Modal states
