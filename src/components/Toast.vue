@@ -111,6 +111,8 @@ const removeToast = (id) => toastStore.removeToast(id)
   display: flex;
   align-items: center;
   justify-content: center;
+  float : right;
+  transition: color 0.2s ease, background 0.2s ease;
 }
 
 .toast-close:hover {

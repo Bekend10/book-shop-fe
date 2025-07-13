@@ -69,13 +69,11 @@ export const useAuthStore = defineStore('auth', {
           // Gọi API thật
           response = await axios.post('/accounts/register', userData)
         }
-        
-        const { token, user } = response.data
-        
+        // Lưu token và thông tin user        
         this.token = response.data.access_token
         this.user = response.data.user
         
-        localStorage.setItem('access_token', esponse.data.access_token)
+        localStorage.setItem('access_token', response.data.access_token)
         localStorage.setItem('user', JSON.stringify(response.data.user))
         
         return { success: true }
@@ -104,6 +102,7 @@ export const useAuthStore = defineStore('auth', {
         
         // Clear localStorage
         localStorage.removeItem('access_token')
+        localStorage.removeItem('user')
       }
     },
 
@@ -122,20 +121,38 @@ export const useAuthStore = defineStore('auth', {
           response = await axios.get('/users/get-user-by-id?id=' + id)
         }
         
+        // Cập nhật thông tin user mới nhất
         this.user = response.data
+        localStorage.setItem('user', JSON.stringify(response.data))
+        
       } catch (error) {
         console.error('Fetch profile error:', error)
-        // Nếu token hết hạn, logout
+        // Chỉ logout nếu token thực sự hết hạn (401)
         if (error.response?.status === 401) {
           this.logout()
+          throw error // Re-throw để initializeAuth biết token không hợp lệ
         }
+        // Với các lỗi khác (mạng, server), không logout
       }
     },
 
     // Khởi tạo khi app load
     async initializeAuth() {
-      if (this.token) {
-        await this.fetchUserProfile()
+      
+      // Kiểm tra localStorage có token không
+      const token = localStorage.getItem('access_token')
+      const user = localStorage.getItem('user')
+            
+      if (token && user) {
+        try {
+          // Khôi phục thông tin từ localStorage
+          this.token = token
+          this.user = JSON.parse(user)
+                    
+        } catch (error) {
+          // Nếu token không hợp lệ, clear localStorage
+          this.logout()
+        }
       }
     }
   }
