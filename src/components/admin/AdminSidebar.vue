@@ -60,7 +60,7 @@
               <span>Quản lý tác giả</span>
             </router-link>
           </li>
-          <li>
+          <!-- <li>
             <button
               @click="$emit('change-section', 'publishers')"
               :class="[
@@ -73,7 +73,7 @@
               <Building class="h-4 w-4" />
               <span>Quản lý nhà xuất bản</span>
             </button>
-          </li>
+          </li> -->
         </ul>
       </div>
 
