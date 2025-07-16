@@ -19,32 +19,32 @@
         </h3>
         <ul class="space-y-1">
           <li>
-            <button
-              @click="$emit('change-section', 'books')"
+            <router-link
+              to="/admin"
               :class="[
                 'w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors',
-                activeSection === 'books' 
+                ($route.name === 'admin' || activeSection === 'books')
                   ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300' 
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               ]"
             >
               <BookOpen class="h-4 w-4" />
               <span>Quản lý sách</span>
-            </button>
+            </router-link>
           </li>
           <li>
-            <button
-              @click="$emit('change-section', 'categories')"
+            <router-link
+              to="/admin/categories"
               :class="[
                 'w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors',
-                activeSection === 'categories' 
+                ($route.name === 'admin-categories' || activeSection === 'categories')
                   ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300' 
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               ]"
             >
               <Tag class="h-4 w-4" />
               <span>Quản lý danh mục</span>
-            </button>
+            </router-link>
           </li>
           <li>
             <router-link
@@ -83,18 +83,18 @@
         </h3>
         <ul class="space-y-1">
           <li>
-            <button
-              @click="$emit('change-section', 'orders')"
+            <router-link
+              to="/admin/orders"
               :class="[
                 'w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors',
-                activeSection === 'orders' 
+                ($route.name === 'admin-orders' || activeSection === 'orders')
                   ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300' 
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               ]"
             >
               <ShoppingBag class="h-4 w-4" />
               <span>Quản lý đơn hàng</span>
-            </button>
+            </router-link>
           </li>
           <li>
             <button
