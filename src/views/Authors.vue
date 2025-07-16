@@ -142,9 +142,6 @@ const changeSection = (section) => {
       // Already on authors page
       router.push('/admin/authors')
       break
-    case 'publishers':
-      // router.push('/admin/publishers') // When publishers page is created
-      break
     case 'orders':
       // router.push('/admin/orders') // When orders page is created
       break
