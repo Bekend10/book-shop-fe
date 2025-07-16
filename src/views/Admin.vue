@@ -115,15 +115,7 @@
 
           <!-- Transactions Management -->
           <div v-else-if="activeSection === 'transactions'">
-            <div class="flex items-center justify-between mb-8">
-              <div>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Quản lý giao dịch</h1>
-                <p class="text-gray-600 dark:text-gray-300 mt-1">Quản lý giao dịch thanh toán</p>
-              </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <p class="text-gray-500 dark:text-gray-400">Chức năng quản lý giao dịch sẽ được phát triển...</p>
-            </div>
+            <AdminTransactions />
           </div>
 
           <!-- Users Management -->
@@ -257,6 +249,7 @@ import { useBookStore } from '@/stores/bookStore'
 import { useAuthorStore } from '@/stores/authorStore'
 import AdminSidebar from '@/components/admin/AdminSidebar.vue'
 import AdminOrders from '@/components/admin/AdminOrders.vue'
+import AdminTransactions from '@/components/admin/AdminTransactions.vue'
 import ImageUploader from '@/components/admin/ImageUploader.vue'
 import axios from 'axios'
 const toastStore = useToastStore()
@@ -281,19 +274,23 @@ const sidebarOpen = ref(false)
 
 // Set active section based on current route
 const setActiveSectionFromRoute = () => {
-  console.log('Current route name:', route.name)
+  // console.log('Current route name:', route.name)
   switch (route.name) {
     case 'admin-orders':
       activeSection.value = 'orders'
-      console.log('Set activeSection to orders')
+      // console.log('Set activeSection to orders')
+      break
+    case 'admin-transactions':
+      activeSection.value = 'transactions'
+      // console.log('Set activeSection to transactions')
       break
     case 'admin':
     default:
       activeSection.value = 'books'
-      console.log('Set activeSection to books')
+      // console.log('Set activeSection to books')
       break
   }
-  console.log('activeSection.value:', activeSection.value)
+  // console.log('activeSection.value:', activeSection.value)
 }
 
 // Call on mount to set initial section
@@ -327,6 +324,10 @@ const changeSection = (section) => {
     case 'orders':
       activeSection.value = 'orders'
       router.push('/admin/orders')
+      break
+    case 'transactions':
+      activeSection.value = 'transactions'
+      router.push('/admin/transactions')
       break
     case 'users':
       // router.push('/admin/users') // When users page is created
