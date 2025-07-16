@@ -110,15 +110,7 @@
 
           <!-- Orders Management -->
           <div v-else-if="activeSection === 'orders'">
-            <div class="flex items-center justify-between mb-8">
-              <div>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Quản lý đơn hàng</h1>
-                <p class="text-gray-600 dark:text-gray-300 mt-1">Quản lý đơn hàng của khách hàng</p>
-              </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <p class="text-gray-500 dark:text-gray-400">Chức năng quản lý đơn hàng sẽ được phát triển...</p>
-            </div>
+            <AdminOrders />
           </div>
 
           <!-- Transactions Management -->
@@ -247,8 +239,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import {
   Plus,
   Edit,
@@ -264,6 +256,7 @@ import {
 import { useBookStore } from '@/stores/bookStore'
 import { useAuthorStore } from '@/stores/authorStore'
 import AdminSidebar from '@/components/admin/AdminSidebar.vue'
+import AdminOrders from '@/components/admin/AdminOrders.vue'
 import ImageUploader from '@/components/admin/ImageUploader.vue'
 import axios from 'axios'
 const toastStore = useToastStore()
@@ -276,6 +269,7 @@ import { useToastStore } from '@/stores/toastStore'
 const bookStore = useBookStore()
 const authorStore = useAuthorStore()
 const router = useRouter()
+const route = useRoute()
 
 const books = computed(() => bookStore.books)
 const categories = computed(() => bookStore.categories)
@@ -285,6 +279,33 @@ const authors = computed(() => authorStore.authors)
 const activeSection = ref('books')
 const sidebarOpen = ref(false)
 
+// Set active section based on current route
+const setActiveSectionFromRoute = () => {
+  console.log('Current route name:', route.name)
+  switch (route.name) {
+    case 'admin-orders':
+      activeSection.value = 'orders'
+      console.log('Set activeSection to orders')
+      break
+    case 'admin':
+    default:
+      activeSection.value = 'books'
+      console.log('Set activeSection to books')
+      break
+  }
+  console.log('activeSection.value:', activeSection.value)
+}
+
+// Call on mount to set initial section
+onMounted(() => {
+  setActiveSectionFromRoute()
+})
+
+// Watch route changes
+watch(() => route.name, () => {
+  setActiveSectionFromRoute()
+})
+
 const changeSection = (section) => {
   sidebarOpen.value = false // Close mobile sidebar
   
@@ -292,7 +313,7 @@ const changeSection = (section) => {
   switch (section) {
     case 'books':
       activeSection.value = 'books'
-      // Stay on current page
+      router.push('/admin')
       break
     case 'categories':
       router.push('/admin/categories')
@@ -304,7 +325,8 @@ const changeSection = (section) => {
       // router.push('/admin/publishers') // When publishers page is created
       break
     case 'orders':
-      // router.push('/admin/orders') // When orders page is created
+      activeSection.value = 'orders'
+      router.push('/admin/orders')
       break
     case 'users':
       // router.push('/admin/users') // When users page is created
