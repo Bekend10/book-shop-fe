@@ -60,11 +60,6 @@
           </div>
         </div>
 
-        <!-- Error Message -->
-        <div v-if="authStore.error" class="text-red-600 dark:text-red-400 text-sm text-center">
-          {{ authStore.error }}
-        </div>
-
         <!-- Submit Button -->
         <div>
           <button type="submit" :disabled="authStore.isLoading"
