@@ -120,15 +120,7 @@
 
           <!-- Users Management -->
           <div v-else-if="activeSection === 'users'">
-            <div class="flex items-center justify-between mb-8">
-              <div>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Quản lý người dùng</h1>
-                <p class="text-gray-600 dark:text-gray-300 mt-1">Quản lý tài khoản người dùng</p>
-              </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <p class="text-gray-500 dark:text-gray-400">Chức năng quản lý người dùng sẽ được phát triển...</p>
-            </div>
+            <AdminUserManagement />
           </div>
 
           <!-- Revenue Management -->
@@ -250,6 +242,7 @@ import { useAuthorStore } from '@/stores/authorStore'
 import AdminSidebar from '@/components/admin/AdminSidebar.vue'
 import AdminOrders from '@/components/admin/AdminOrders.vue'
 import AdminTransactions from '@/components/admin/AdminTransactions.vue'
+import AdminUserManagement from '@/components/admin/AdminUserManagement.vue'
 import ImageUploader from '@/components/admin/ImageUploader.vue'
 import axios from 'axios'
 const toastStore = useToastStore()
@@ -283,6 +276,10 @@ const setActiveSectionFromRoute = () => {
     case 'admin-transactions':
       activeSection.value = 'transactions'
       // console.log('Set activeSection to transactions')
+      break
+    case 'admin-users':
+      activeSection.value = 'users'
+      // console.log('Set activeSection to users')
       break
     case 'admin':
     default:
@@ -330,7 +327,8 @@ const changeSection = (section) => {
       router.push('/admin/transactions')
       break
     case 'users':
-      // router.push('/admin/users') // When users page is created
+      activeSection.value = 'users'
+      router.push('/admin/users')
       break
     default:
       activeSection.value = section
