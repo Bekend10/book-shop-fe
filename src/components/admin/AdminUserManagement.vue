@@ -540,6 +540,7 @@ onMounted(() => {
 .dark .stat-card {
   background: rgb(31, 41, 55);
   border-color: rgb(55, 65, 81);
+    border : 1px solid #e5e7eb;
 }
 
 .stat-card:hover {

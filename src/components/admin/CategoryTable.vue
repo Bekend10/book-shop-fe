@@ -194,6 +194,8 @@ const formatDate = (dateString) => {
   background: white;
   border-radius: 0.75rem;
   overflow: hidden;
+    border : 1px solid #e5e7eb;
+
 }
 
 .table-header {
@@ -202,6 +204,8 @@ const formatDate = (dateString) => {
   align-items: center;
   padding: 1.5rem;
   /* border-bottom: 1px solid #e5e7eb; */
+    border-bottom : 1px solid #e5e7eb;
+
 }
 
 .search-section {
@@ -226,7 +230,7 @@ const formatDate = (dateString) => {
 .search-input {
   width: 100%;
   padding: 0.75rem 0.75rem 0.75rem 2.5rem;
-  /* border: 1px solid #d1d5db; */
+  border: 1px solid #d1d5db;
   border-radius: 0.5rem;
   font-size: 0.875rem;
   transition: border-color 0.2s ease;
@@ -348,7 +352,7 @@ const formatDate = (dateString) => {
 
 .table-footer {
   padding: 1rem 1.5rem;
-  /* border-top: 1px solid #e5e7eb; */
+  border-top: 1px solid #e5e7eb;
   /* background: #374151; */
   color: #6b7280;
   font-size : 14px;
@@ -475,6 +479,7 @@ const formatDate = (dateString) => {
 /* Dark mode */
 :global(.dark) .category-table-container {
   background: #0f172a; /* Match dark background with Authors.vue */
+  border : 1px solid #e5e7eb;
 }
 
 :global(.dark) .table-header {
