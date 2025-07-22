@@ -141,18 +141,18 @@
         </h3>
         <ul class="space-y-1">
           <li>
-            <button
-              @click="$emit('change-section', 'revenue')"
+            <router-link
+              to="/admin/revenue"
               :class="[
                 'w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors',
-                activeSection === 'revenue' 
+                ($route.name === 'admin-revenue' || activeSection === 'revenue')
                   ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300' 
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               ]"
             >
               <TrendingUp class="h-4 w-4" />
               <span>Doanh thu</span>
-            </button>
+            </router-link>
           </li>
         </ul>
       </div>

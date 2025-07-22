@@ -9,6 +9,7 @@ import Category from '@/views/Category.vue'
 import Login from '@/views/Login.vue'
 import Profile from '@/views/Profile.vue'
 import Orders from '@/views/Orders.vue'
+import Revenue from '@/views/admin/RevenueManagement.vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useToastStore } from '@/stores/toastStore'
 
@@ -89,6 +90,12 @@ const router = createRouter({
       component: Admin,
       meta: { requiresAdmin: true }
     },
+    {
+      path: '/admin/revenue',
+      name: 'admin-revenue',
+      component: Revenue,
+      meta: { requiresAdmin: true } 
+    }
   ]
 })
 

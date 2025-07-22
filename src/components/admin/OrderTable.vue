@@ -454,7 +454,7 @@ const getStatusText = (status) => {
 
 .table-cell {
   padding: 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  /* border-bottom: 1px solid #e5e7eb; */
   font-size: 0.875rem;
   color: #111827;
 }

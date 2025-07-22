@@ -40,7 +40,12 @@ export const useAuthStore = defineStore("auth", {
         localStorage.setItem("access_token", response.data.access_token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
-        return { success: true };
+        return {
+          success: true,
+          status: response.status,
+          message: response.data.msg,
+          data: response.data,
+        };
       } catch (error) {
         const msg = error.response?.data?.msg || "Đăng nhập thất bại";
         this.error = msg;
@@ -73,7 +78,12 @@ export const useAuthStore = defineStore("auth", {
         localStorage.setItem("access_token", response.data.access_token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
-        return { success: true };
+        return {
+          success: true,
+          status: response.status,
+          message: response.data.msg,
+          data: response.data,
+        };
       } catch (error) {
         this.error =
           error.message || error.response?.data?.msg || "Đăng ký thất bại";

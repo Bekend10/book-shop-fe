@@ -946,11 +946,14 @@ const getAmountClass = (status) => {
 .dark .transaction-table-container {
   background: #1f2937;
   border-color: #374151;
+  border : 1px solid #e5e7eb;
 }
 
 .dark .table-header {
   background: #1f2937;
   border-bottom-color: #374151;
+    border : 1px solid #e5e7eb;
+
 }
 
 .dark .table-wrapper {
@@ -1017,6 +1020,7 @@ const getAmountClass = (status) => {
   background: #374151;
   border-color: #4b5563;
   color: #e5e7eb;
+  border : 1px solid #e5e7eb;
 }
 
 .dark .search-input:focus {
@@ -1031,11 +1035,13 @@ const getAmountClass = (status) => {
   background: #374151;
   border-color: #4b5563;
   color: #e5e7eb;
+  border : 1px solid #e5e7eb;
 }
 
 .dark .pagination-container {
   background: #374151;
-  border-top-color: #4b5563;
+  /* border-top-color: #4b5563; */
+  border : 1px solid #e5e7eb;
 }
 
 .dark .results-info {

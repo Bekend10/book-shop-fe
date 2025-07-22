@@ -215,6 +215,7 @@ watch(() => props.authors, () => {
 .dark .author-table-container {
   background: #1f2937;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border : 1px solid #e5e7eb
 }
 
 .table-header {
@@ -228,6 +229,7 @@ watch(() => props.authors, () => {
 
 .dark .table-header {
   border-bottom-color: #374151;
+  border : 1px solid #e5e7eb;
 }
 
 .search-section {
@@ -268,6 +270,7 @@ watch(() => props.authors, () => {
   background: #374151;
   border-color: #4b5563;
   color: #f3f4f6;
+  border : 1px solid #e5e7eb;
 }
 
 .dark .search-input::placeholder {
@@ -600,7 +603,7 @@ watch(() => props.authors, () => {
 
 .dark .table-footer {
   background: #374151;
-  border-top-color: #4b5563;
+  border: 1px solid #e5e7eb;
 }
 
 .dark .results-info {
