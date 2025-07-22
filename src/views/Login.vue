@@ -132,12 +132,12 @@ const handleSubmit = async () => {
       })
     }
 
-    if (result.success) {
+    if (result.data.status === 200 || result.data.status === 201) {
       // Hiển thị toast thành công
       if (isLoginMode.value) {
         toastStore.success('Đăng nhập thành công! Chào mừng bạn quay lại.')
       } else {
-        toastStore.success('Đăng ký thành công! Chào mừng bạn đến với BookShop.')
+        toastStore.success('Đăng ký thành công! Vui lòng kiểm tra hòm thư của bạn để xác thực')
       }
 
       // Chuyển hướng sau khi hiển thị toast
@@ -152,7 +152,7 @@ const handleSubmit = async () => {
 
     } else {
       // Hiển thị toast lỗi
-      toastStore.error(result.error || (isLoginMode.value ? 'Đăng nhập thất bại' : 'Đăng ký thất bại'))
+      toastStore.error(result.data.msg || (isLoginMode.value ? 'Đăng nhập thất bại' : 'Đăng ký thất bại'))
     }
   } catch (error) {
     console.error('Authentication error:', error)

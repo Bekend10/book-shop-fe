@@ -1279,35 +1279,51 @@ watch(filteredUsers, () => {
   color: #6b7280;
   font-size: 0.875rem;
 }
-  
-  .empty-state,
-  .loading-state {
-    padding: 1.5rem 0.75rem;
-  }
-  
-  .empty-icon-svg {
-    width: 2rem;
-    height: 2rem;
-  }
-  
-  .empty-title {
-    font-size: 0.875rem;
-  }
-  
-  .empty-subtitle {
-    font-size: 0.75rem;
-  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.empty-icon {
+  margin-bottom: 1rem;
+}
+
+.empty-icon-svg {
+  width: 3rem;
+  height: 3rem;
+  color: #d1d5db;
+}
+
+.empty-title {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.empty-subtitle {
+  color: #6b7280;
+  font-size: 0.875rem;
+  transition: color 0.3s ease;
 }
 
 /* ===== DARK MODE STYLES ===== */
 .dark .user-table-container {
   background: #1f2937;
   border-color: #374151;
+    border : 1px solid #e5e7eb;
 }
 
 .dark .table-header {
   background: #1f2937;
-  border-bottom-color: #374151;
+  /* border-bottom-color: #374151; */
 }
 
 .dark .table-wrapper::-webkit-scrollbar-track {
@@ -1367,6 +1383,7 @@ watch(filteredUsers, () => {
   background: #374151;
   border-color: #4b5563;
   color: #e5e7eb;
+  border : 1px solid #e5e7eb;
 }
 
 .dark .search-input:focus {
@@ -1382,11 +1399,13 @@ watch(filteredUsers, () => {
   background: #374151;
   border-color: #4b5563;
   color: #e5e7eb;
+  border : 1px solid #e5e7eb;
 }
 
 .dark .pagination-container {
   background: #374151;
   border-top-color: #4b5563;
+  border : 1px solid #e5e7eb;
 }
 
 .results-info {
