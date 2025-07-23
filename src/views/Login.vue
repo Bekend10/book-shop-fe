@@ -79,13 +79,16 @@
             </span>
           </button>
         </div>
+
+        <!-- Google Login -->
+        <div id="g_id_signin" class="flex justify-center"></div>
       </form>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { BookOpen } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/authStore'
@@ -106,7 +109,6 @@ const form = reactive({
 const toggleMode = () => {
   isLoginMode.value = !isLoginMode.value
   authStore.error = null
-  // Reset form
   Object.keys(form).forEach(key => {
     form[key] = ''
   })
@@ -115,55 +117,63 @@ const toggleMode = () => {
 const handleSubmit = async () => {
   try {
     let result
-
     if (isLoginMode.value) {
-      // Đăng nhập
-      result = await authStore.login({
-        email: form.email,
-        password: form.password
-      })
+      result = await authStore.login({ email: form.email, password: form.password })
     } else {
-      // Đăng ký
-      result = await authStore.register({
-        email: form.email,
-        password: form.password,
-        first_name: form.first_name,
-        last_name: form.last_name
-      })
+      result = await authStore.register({ ...form })
     }
 
     if (result.data.status === 200 || result.data.status === 201) {
-      // Hiển thị toast thành công
-      if (isLoginMode.value) {
-        toastStore.success('Đăng nhập thành công! Chào mừng bạn quay lại.')
-      } else {
-        toastStore.success('Đăng ký thành công! Vui lòng kiểm tra hòm thư của bạn để xác thực')
-      }
-
-      // Chuyển hướng sau khi hiển thị toast
+      toastStore.success(isLoginMode.value ? 'Đăng nhập thành công!' : 'Đăng ký thành công!')
       setTimeout(() => {
-        if (authStore.isAdmin) {
-          router.push('/admin')
-        } else {
-          const redirectTo = router.currentRoute.value.query.redirect || '/'
-          router.push(redirectTo)
-        }
+        router.push(authStore.isAdmin ? '/admin' : (router.currentRoute.value.query.redirect || '/'))
       }, 1000)
-
     } else {
-      // Hiển thị toast lỗi
-      toastStore.error(result.data.msg || (isLoginMode.value ? 'Đăng nhập thất bại' : 'Đăng ký thất bại'))
+      toastStore.error(result.data.msg || 'Đã có lỗi xảy ra')
     }
   } catch (error) {
-    console.error('Authentication error:', error)
-    toastStore.error('Tài khoản hoặc mật khẩu không đúng. Vui lòng thử lại.')
+    toastStore.error('Tài khoản hoặc mật khẩu không đúng.')
   }
 }
+
+onMounted(() => {
+  const script = document.createElement('script')
+  script.src = 'https://accounts.google.com/gsi/client'
+  script.async = true
+  script.defer = true
+  script.onload = () => {
+    window.google.accounts.id.initialize({
+      client_id: '255112350298-5j6u5u74oucvo893dgqo7mdt566kce2n.apps.googleusercontent.com',
+      callback: async (response) => {
+        try {
+          const result = await authStore.loginWithGoogle({ token: response.credential })
+          if (result.success) {
+            toastStore.success('Đăng nhập thành công!')
+            setTimeout(() => {
+              router.push(authStore.isAdmin ? '/admin' : (router.currentRoute.value.query.redirect || '/'))
+            }, 1000)
+          } else {
+            toastStore.error(result.data.msg || 'Đăng nhập Google thất bại!')
+          }
+        } catch (err) {
+          toastStore.error('Đăng nhập Google thất bại. Vui lòng thử lại.')
+        }
+      },
+    })
+
+    window.google.accounts.id.renderButton(
+      document.getElementById('g_id_signin'),
+      { theme: 'outline', size: 'large' }
+    )
+  }
+  document.head.appendChild(script)
+})
 </script>
 
 <style>
-  .form {
-  background: rgba(255, 255, 255, 0.85); /* Nền bán trong suốt */
+.form {
+  background: rgba(255, 255, 255, 0.85);
+  /* Nền bán trong suốt */
   padding: 2rem;
   border-radius: 1rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
