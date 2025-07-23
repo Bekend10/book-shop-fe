@@ -113,6 +113,57 @@ export const useAuthStore = defineStore("auth", {
       }
     },
 
+    async loginWithGoogle(googleData) {
+      this.isLoading = true;
+      this.error = null;
+
+      try {
+        let response;
+        
+        if (USE_MOCK_API) {
+          // Mock Google login response
+          const data = {
+            access_token: 'mock-google-token-' + Date.now(),
+            user: {
+              user_id: Math.floor(Math.random() * 1000),
+              email: googleData.email,
+              name: googleData.name,
+              avatar: googleData.avatar,
+              role: 'customer',
+              provider: 'google'
+            },
+            msg: 'Đăng nhập Google thành công'
+          };
+          response = { data };
+        } else {
+          // Call real API endpoint for Google authentication
+          response = await axios.post("/accounts/google-login", {
+            token: googleData.token,
+          });
+        }
+
+        this.token = response.data.access_token;
+        this.user = response.data.user;
+
+        localStorage.setItem("access_token", response.data.access_token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+
+        return {
+          success: true,
+          status: response.status,
+          message: response.data.msg,
+          data: response.data,
+        };
+      } catch (error) {
+        const msg = error.response?.data?.msg || "Đăng nhập Google thất bại";
+        this.error = msg;
+
+        return { success: false, error: msg, status: error.response?.status };
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
     async fetchUserProfile() {
       if (!this.token) return;
 
