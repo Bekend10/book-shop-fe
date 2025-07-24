@@ -88,7 +88,7 @@
             <div class="w-full border-t border-gray-300"></div>
           </div>
           <div class="relative flex justify-center text-sm">
-            <span class="px-3 bg-white text-white font-medium">Hoặc tiếp tục với</span>
+            <span class="px-3 bg-white font-medium ">Hoặc tiếp tục với</span>
           </div>
         </div>
 
@@ -283,14 +283,13 @@ onMounted(() => {
   max-width: 460px;
   transition: all 0.3s ease;
 }
-
 .form:hover {
   transform: translateY(-2px);
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
 }
 
 .main {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-image: src('/src/assets/images/background-image.jpg') cover center center / cover no-repeat;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -308,7 +307,7 @@ onMounted(() => {
   background: url('/src/assets/images/background-image.jpg') no-repeat center center;
   background-size: cover;
   opacity: 0.3;
-  z-index: -1;
+  z-index: 0;
 }
 
 /* Input styling improvements */
