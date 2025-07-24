@@ -119,20 +119,20 @@ export const useAuthStore = defineStore("auth", {
 
       try {
         let response;
-        
+
         if (USE_MOCK_API) {
           // Mock Google login response
           const data = {
-            access_token: 'mock-google-token-' + Date.now(),
+            access_token: "mock-google-token-" + Date.now(),
             user: {
               user_id: Math.floor(Math.random() * 1000),
               email: googleData.email,
               name: googleData.name,
               avatar: googleData.avatar,
-              role: 'customer',
-              provider: 'google'
+              role: "customer",
+              provider: "google",
             },
-            msg: 'Đăng nhập Google thành công'
+            msg: "Đăng nhập Google thành công",
           };
           response = { data };
         } else {
@@ -161,6 +161,17 @@ export const useAuthStore = defineStore("auth", {
         return { success: false, error: msg, status: error.response?.status };
       } finally {
         this.isLoading = false;
+      }
+    },
+
+    async loginWithFacebook({ token }) {
+      try {
+        const res = await axios.post("/accounts/login-facebook", { token });
+        this.token = res.data.access_token;
+        this.user = res.data.user;
+        return { success: true, data: res.data };
+      } catch (error) {
+        return { success: false, data: error.response?.data };
       }
     },
 
