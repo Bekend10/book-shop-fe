@@ -10,6 +10,7 @@ import Login from '@/views/Login.vue'
 import Profile from '@/views/Profile.vue'
 import Orders from '@/views/Orders.vue'
 import Revenue from '@/views/admin/RevenueManagement.vue'
+import NotFound from '@/views/NotFound.vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useToastStore } from '@/stores/toastStore'
 
@@ -95,6 +96,11 @@ const router = createRouter({
       name: 'admin-revenue',
       component: Revenue,
       meta: { requiresAdmin: true } 
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: NotFound,
     }
   ]
 })
