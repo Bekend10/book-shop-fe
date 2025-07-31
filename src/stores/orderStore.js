@@ -187,6 +187,65 @@ export const useOrderStore = defineStore("order", () => {
     }
   };
 
+  // Fetch user orders (for customer)
+  const fetchUserOrders = async () => {
+    isLoading.value = true;
+    error.value = null;
+
+    try {
+      const response = await axios.get("/orders/get-my-orders");
+      
+      if (response.data.status === 200) {
+        orders.value = response.data.data || response.data.orders || [];
+        return { success: true, data: orders.value };
+      } else {
+        return {
+          success: false,
+          error: response.data.message || "Không thể tải danh sách đơn hàng",
+        };
+      }
+    } catch (err) {
+      console.error("Fetch user orders error:", err);
+      const errorMessage =
+        err.response?.data?.message || "Không thể tải danh sách đơn hàng";
+      error.value = errorMessage;
+      return { success: false, error: errorMessage };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  // Cancel order (for customer)
+  const cancelOrder = async (orderId) => {
+    isLoading.value = true;
+    error.value = null;
+
+    try {
+      const response = await axios.put(`/orders/cancel-order?id=${orderId}`);
+      
+      if (response.data.status === 200) {
+        const orderIndex = orders.value.findIndex(order => order.order_id === orderId);
+        if (orderIndex !== -1) {
+          orders.value[orderIndex].status = 4;
+        }
+        return { success: true, message: "Đơn hàng đã được hủy thành công" };
+      } else {
+        return {
+          success: false,
+          error: response.data.message || "Không thể hủy đơn hàng",
+        };
+      }
+    } catch (err) {
+      console.error("Cancel order error:", err);
+      const errorMessage =
+        err.response?.data?.message || "Không thể hủy đơn hàng";
+      error.value = errorMessage;
+      return { success: false, error: errorMessage };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
   return {
     orders,
     isLoading,
@@ -203,5 +262,7 @@ export const useOrderStore = defineStore("order", () => {
     updateOrderStatus,
     getOrderDetails,
     deleteOrder,
+    fetchUserOrders,
+    cancelOrder,
   };
 });
