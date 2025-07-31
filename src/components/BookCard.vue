@@ -2,12 +2,23 @@
   <div class="card hover:shadow-lg transition-shadow duration-300 h-full flex flex-col">
     <div class="relative">
       <img :src="book.image_url" :alt="book.title" class="w-full h-48 sm:h-56 md:h-64 object-cover" />
-      <div v-if="book.isBn" class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs">
+      
+      <!-- Out of Stock Badge -->
+      <div v-if="!book.quantity || book.quantity <= 0" 
+           class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
         Hết hàng
       </div>
-      <div v-if="book.price_origin > book.price"
-        class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs">
+      
+      <!-- Sale Badge (only show if not out of stock) -->
+      <div v-else-if="book.price_origin > book.price"
+           class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
         {{ Math.round((1 - book.price / book.price_origin) * 100) }}% OFF
+      </div>
+      
+      <!-- Stock Warning Badge (left side) -->
+      <div v-if="book.quantity > 0 && book.quantity <= 5" 
+           class="absolute top-2 left-2 bg-amber-500 text-white px-2 py-1 rounded text-xs font-medium">
+        Còn {{ book.quantity }} cuốn
       </div>
     </div>
 
@@ -37,20 +48,21 @@
         <router-link :to="`/book/${book.book_id}`" class="w-full btn-outline text-center py-2 px-3 text-xs sm:text-sm">
           Xem chi tiết
         </router-link>
-        <button @click="addToCart" :disabled="!book.is_bn"
-          class="w-full btn-primary disabled:bg-gray-400 disabled:cursor-not-allowed disabled:dark:bg-gray-600 py-2 px-3 text-xs sm:text-sm flex items-center justify-center">
-          <ShoppingCart class="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-          <span class="hidden sm:inline">{{ isInCart(book.book_id) ? 'Đã thêm' : 'Thêm vào giỏ' }}</span>
-          <span class="sm:hidden">{{ isInCart(book.book_id) ? 'Đã thêm' : 'Thêm' }}</span>
-        </button>
+        
+        <!-- Compact Add to Cart Component -->
+        <CompactAddToCartButton 
+          :book="book" 
+          @added-to-cart="onAddedToCart"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { Star, ShoppingCart } from 'lucide-vue-next'
+import { Star } from 'lucide-vue-next'
 import { useCartStore } from '@/stores/cartStore'
+import CompactAddToCartButton from '@/components/common/CompactAddToCartButton.vue'
 
 const props = defineProps({
   book: {
@@ -65,14 +77,8 @@ const formatPrice = (price) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)
 }
 
-const isInCart = (bookId) => {
-  return cartStore.isInCart(bookId)
+const onAddedToCart = (data) => {
 }
-
-const addToCart = () => {
-  cartStore.addToCart(props.book)
-}
-
 </script>
 
 <style scoped>
