@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import axios from "@/utils/axios";
 import { mockAuth } from "@/utils/mockAuth";
 import { useToastStore } from "@/stores/toastStore";
+import { useCartStore } from "@/stores/cartStore";
 // Sử dụng mock API cho development
 var USE_MOCK_API = false;
 
@@ -39,6 +40,10 @@ export const useAuthStore = defineStore("auth", {
 
         localStorage.setItem("access_token", response.data.access_token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
+
+        // Fetch cart after successful login
+        const cartStore = useCartStore();
+        await cartStore.initializeCart();
 
         return {
           success: true,
@@ -110,6 +115,10 @@ export const useAuthStore = defineStore("auth", {
         // Clear localStorage
         localStorage.removeItem("access_token");
         localStorage.removeItem("user");
+
+        // Clear cart data
+        const cartStore = useCartStore();
+        cartStore.clearCartData();
       }
     },
 
@@ -148,6 +157,10 @@ export const useAuthStore = defineStore("auth", {
         localStorage.setItem("access_token", response.data.access_token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
+        // Fetch cart after successful Google login
+        const cartStore = useCartStore();
+        await cartStore.initializeCart();
+
         return {
           success: true,
           status: response.status,
@@ -169,6 +182,14 @@ export const useAuthStore = defineStore("auth", {
         const res = await axios.post("/accounts/login-facebook", { token });
         this.token = res.data.access_token;
         this.user = res.data.user;
+
+        localStorage.setItem("access_token", res.data.access_token);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+
+        // Fetch cart after successful Facebook login
+        const cartStore = useCartStore();
+        await cartStore.initializeCart();
+
         return { success: true, data: res.data };
       } catch (error) {
         return { success: false, data: error.response?.data };

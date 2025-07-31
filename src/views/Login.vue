@@ -226,7 +226,6 @@ const loginWithFacebookToken = async (token) => {
 
 
 onMounted(() => {
-  console.log(window.location);
   const script = document.createElement('script')
   const fbScript = document.createElement('script')
   fbScript.src = "https://connect.facebook.net/en_US/sdk.js"
