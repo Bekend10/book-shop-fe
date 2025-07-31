@@ -32,10 +32,17 @@
       </div>
 
       <!-- Orders List -->
-      <div v-if="filteredOrders.length > 0" class="space-y-6">
+      <!-- Loading State -->
+      <div v-if="isLoading" class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <span class="ml-3 text-gray-600 dark:text-gray-400">Đang tải danh sách đơn hàng...</span>
+      </div>
+
+      <!-- Orders List -->
+      <div v-else-if="filteredOrders.length > 0" class="space-y-6">
         <div 
           v-for="order in filteredOrders" 
-          :key="order.id"
+          :key="order.order_id || order.id"
           class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
         >
           <!-- Order Header -->
@@ -44,10 +51,10 @@
               <div class="flex items-center space-x-4">
                 <div>
                   <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                    Đơn hàng #{{ order.id }}
+                    Đơn hàng #{{ order.order_id }}
                   </h3>
                   <p class="text-sm text-gray-600 dark:text-gray-400">
-                    {{ formatDate(order.created_at) }}
+                    {{ formatDate(order.order_date) }}
                   </p>
                 </div>
                 <span :class="[
@@ -59,45 +66,49 @@
               </div>
               <div class="text-right">
                 <p class="text-lg font-semibold text-gray-900 dark:text-white">
-                  {{ formatPrice(order.total) }}
+                  {{ formatPrice(order.total_amount) }}
                 </p>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
-                  {{ order.items.length }} sản phẩm
+                  {{ order.orderDetail ? `${order.orderDetail.quantity} sản phẩm` : 'Chưa có sản phẩm' }}
                 </p>
               </div>
             </div>
           </div>
 
           <!-- Order Items -->
-          <div class="px-6 py-4">
+          <div class="px-6 py-4" v-if="order.orderDetail && order.orderDetail.book">
             <div class="space-y-4">
-              <div 
-                v-for="item in order.items" 
-                :key="item.id"
-                class="flex items-center space-x-4"
-              >
+              <div class="flex items-center space-x-4">
                 <img 
-                  :src="item.book.image_url" 
-                  :alt="item.book.title"
+                  :src="order.orderDetail.book.image_url || '/placeholder-book.jpg'" 
+                  :alt="order.orderDetail.book.title"
                   class="w-16 h-20 object-cover rounded"
+                  @error="$event.target.src='/placeholder-book.jpg'"
                 />
                 <div class="flex-1">
                   <h4 class="font-medium text-gray-900 dark:text-white">
-                    {{ item.book.title }}
+                    {{ order.orderDetail.book.title }}
                   </h4>
                   <p class="text-sm text-gray-600 dark:text-gray-400">
-                    {{ item.book.author }}
+                    Tác giả: {{ getAuthorNames(order.orderDetail.book.authors) }}
                   </p>
                   <div class="flex items-center space-x-4 mt-1">
                     <span class="text-sm text-gray-600 dark:text-gray-400">
-                      Số lượng: {{ item.quantity }}
+                      Số lượng: {{ order.orderDetail.quantity }}
                     </span>
                     <span class="text-sm font-medium text-gray-900 dark:text-white">
-                      {{ formatPrice(item.price) }}
+                      {{ formatPrice(order.orderDetail.unit_price) }}
                     </span>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+          
+          <!-- No Items State -->
+          <div v-else class="px-6 py-4">
+            <div class="text-center text-gray-500 dark:text-gray-400">
+              <p>Đơn hàng chưa có sản phẩm</p>
             </div>
           </div>
 
@@ -112,7 +123,7 @@
                   Xem chi tiết
                 </button>
                 <button 
-                  v-if="order.status === 'delivered'"
+                  v-if="order.status === 3"
                   @click="reorder(order)"
                   class="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium text-sm"
                 >
@@ -122,14 +133,14 @@
               
               <div class="flex space-x-3">
                 <button 
-                  v-if="order.status === 'pending'"
+                  v-if="order.status === 0"
                   @click="cancelOrder(order)"
                   class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium text-sm"
                 >
                   Hủy đơn
                 </button>
                 <button 
-                  v-if="order.status === 'delivered'"
+                  v-if="order.status === 3"
                   @click="writeReview(order)"
                   class="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium text-sm"
                 >
@@ -142,7 +153,7 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else class="text-center py-12">
+      <div v-else-if="!isLoading" class="text-center py-12">
         <Package class="mx-auto h-12 w-12 text-gray-400" />
         <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
           Chưa có đơn hàng nào
@@ -162,89 +173,64 @@
       </div>
     </div>
   </div>
+
+  <!-- Order Detail Modal -->
+  <OrderDetailModal 
+    :isOpen="isModalOpen"
+    :order="selectedOrder"
+    @close="closeModal"
+    @reorder="handleModalReorder"
+    @cancel-order="handleModalCancelOrder" 
+    @write-review="handleModalWriteReview"
+  />
+
+  <!-- Confirm Cancel Modal -->
+  <ConfirmCancelModal
+    :is-open="isConfirmModalOpen"
+    :is-loading="isLoading"
+    :order="orderToCancel"
+    @confirm="handleConfirmCancel"
+    @cancel="closeConfirmModal"
+    @close="closeConfirmModal"
+  />
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { Package, ShoppingBag } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/authStore'
+import { useOrderStore } from '@/stores/orderStore'
 import { useCartStore } from '@/stores/cartStore'
 import { useToastStore } from '@/stores/toastStore'
 import { useRouter } from 'vue-router'
+import OrderDetailModal from '@/components/modals/OrderDetailModal.vue'
+import ConfirmCancelModal from '@/components/modals/ConfirmCancelModal.vue'
 
 const authStore = useAuthStore()
+const orderStore = useOrderStore()
 const cartStore = useCartStore()
 const toastStore = useToastStore()
 const router = useRouter()
 
 const activeStatus = ref('all')
-const orders = ref([])
+const isModalOpen = ref(false)
+const selectedOrder = ref(null)
 
-// Mock data - sẽ được thay thế bằng API call thực tế
-const mockOrders = [
-  {
-    id: 'ORD001',
-    status: 'delivered',
-    total: 299000,
-    created_at: '2024-01-15T10:30:00Z',
-    items: [
-      {
-        id: 1,
-        book: {
-          title: 'Sapiens: Lược sử loài người',
-          author: 'Yuval Noah Harari',
-          image_url: 'https://salt.tikicdn.com/cache/280x280/ts/product/5e/18/24/2a6154ba08df6ce6161c13f4303fa19e.jpg'
-        },
-        quantity: 1,
-        price: 299000
-      }
-    ]
-  },
-  {
-    id: 'ORD002', 
-    status: 'shipping',
-    total: 450000,
-    created_at: '2024-01-20T14:20:00Z',
-    items: [
-      {
-        id: 2,
-        book: {
-          title: 'Nhà giả kim',
-          author: 'Paulo Coelho',
-          image_url: 'https://salt.tikicdn.com/cache/280x280/ts/product/45/3b/fc/07f35c50e0d46715c4ba0c1e09db327b.jpg'
-        },
-        quantity: 2,
-        price: 225000
-      }
-    ]
-  },
-  {
-    id: 'ORD003',
-    status: 'pending',
-    total: 180000,
-    created_at: '2024-01-25T09:15:00Z',
-    items: [
-      {
-        id: 3,
-        book: {
-          title: 'Đắc nhân tâm',
-          author: 'Dale Carnegie',
-          image_url: 'https://salt.tikicdn.com/cache/280x280/ts/product/ca/77/32/2c2538ba92b10cac6ba851b3fcc3ea68.jpg'
-        },
-        quantity: 1,
-        price: 180000
-      }
-    ]
-  }
-]
+// Confirm modal states
+const isConfirmModalOpen = ref(false)
+const orderToCancel = ref(null)
+
+// Get orders from store
+const orders = computed(() => orderStore.orders)
+const isLoading = computed(() => orderStore.isLoading)
 
 const orderStatuses = computed(() => [
   { value: 'all', label: 'Tất cả', count: orders.value.length },
-  { value: 'pending', label: 'Chờ xử lý', count: orders.value.filter(o => o.status === 'pending').length },
-  { value: 'confirmed', label: 'Đã xác nhận', count: orders.value.filter(o => o.status === 'confirmed').length },
-  { value: 'shipping', label: 'Đang giao', count: orders.value.filter(o => o.status === 'shipping').length },
-  { value: 'delivered', label: 'Đã giao', count: orders.value.filter(o => o.status === 'delivered').length },
-  { value: 'cancelled', label: 'Đã hủy', count: orders.value.filter(o => o.status === 'cancelled').length }
+  { value: 0, label: 'Chờ xử lý', count: orders.value.filter(o => o.status === 0).length },
+  { value: 1, label: 'Đã xác nhận', count: orders.value.filter(o => o.status === 1).length },
+  { value: 2, label: 'Đang giao', count: orders.value.filter(o => o.status === 2).length },  
+  { value: 3, label: 'Đã giao', count: orders.value.filter(o => o.status === 3).length },
+  { value: 4, label: 'Đã hủy', count: orders.value.filter(o => o.status === 4).length }
 ])
 
 const filteredOrders = computed(() => {
@@ -270,15 +256,15 @@ const formatDate = (dateString) => {
 
 const getStatusColor = (status) => {
   switch (status) {
-    case 'pending':
+    case 0:
       return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
-    case 'confirmed':
+    case 1:
       return 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
-    case 'shipping':
+    case 2:
       return 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200'
-    case 'delivered':
+    case 3:
       return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-    case 'cancelled':
+    case 4:
       return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
     default:
       return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
@@ -287,50 +273,100 @@ const getStatusColor = (status) => {
 
 const getStatusText = (status) => {
   switch (status) {
-    case 'pending':
+    case 0:
       return 'Chờ xử lý'
-    case 'confirmed':
+    case 1:
       return 'Đã xác nhận'
-    case 'shipping':
+    case 2:
       return 'Đang giao hàng'
-    case 'delivered':
+    case 3:
       return 'Đã giao hàng'
-    case 'cancelled':
+    case 4:
       return 'Đã hủy'
     default:
       return 'Không xác định'
   }
 }
 
-const viewOrderDetail = (order) => {
-  // Navigate to order detail page or show modal
-  toastStore.info(`Xem chi tiết đơn hàng #${order.id}`)
+const getAuthorNames = (authors) => {
+  if (!authors) return 'Chưa có thông tin'
+  if (Array.isArray(authors) && authors.length > 0) {
+    return authors.map(author => author.name).join(', ')
+  }
+  return 'Chưa có thông tin'
 }
 
-const reorder = (order) => {
-  // Add all items from order to cart
-  order.items.forEach(item => {
-    cartStore.addItem({
-      id: item.book.id,
-      title: item.book.title,
-      author: item.book.author,
-      price: item.price,
-      image: item.book.image_url
-    }, item.quantity)
-  })
-  
-  toastStore.success('Đã thêm sản phẩm vào giỏ hàng')
-  router.push('/cart')
+const viewOrderDetail = (order) => {
+  selectedOrder.value = order
+  isModalOpen.value = true
+}
+
+const closeModal = () => {
+  isModalOpen.value = false
+  selectedOrder.value = null
+}
+
+const handleModalReorder = (order) => {
+  reorder(order)
+}
+
+const handleModalCancelOrder = (order) => {
+  cancelOrder(order)
+}
+
+const handleModalWriteReview = (order) => {
+  writeReview(order)
+}
+
+const reorder = async (order) => {
+  try {
+    // Add item from order to cart
+    if (order.orderDetail && order.orderDetail.book) {
+      const bookData = {
+        id: order.orderDetail.book.book_id,
+        title: order.orderDetail.book.title,
+        author: getAuthorNames(order.orderDetail.book.authors),
+        price: order.orderDetail.book.price,
+        image: order.orderDetail.book.image_url
+      }
+      
+      cartStore.addItem(bookData, order.orderDetail.quantity)
+      toastStore.success('Đã thêm sản phẩm vào giỏ hàng')
+      router.push('/cart')
+    } else {
+      toastStore.error('Không thể thêm sản phẩm vào giỏ hàng - đơn hàng không có sản phẩm')
+    }
+  } catch (error) {
+    console.error('Reorder error:', error)
+    toastStore.error('Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng')
+  }
 }
 
 const cancelOrder = (order) => {
-  if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
-    // API call to cancel order
-    const orderIndex = orders.value.findIndex(o => o.id === order.id)
-    if (orderIndex !== -1) {
-      orders.value[orderIndex].status = 'cancelled'
+  orderToCancel.value = order
+  isConfirmModalOpen.value = true
+}
+
+const closeConfirmModal = () => {
+  isConfirmModalOpen.value = false
+  orderToCancel.value = null
+}
+
+const handleConfirmCancel = async () => {
+  if (!orderToCancel.value) return
+  
+  try {
+    const result = await orderStore.cancelOrder(orderToCancel.value.order_id)
+    
+    if (result.success) {
       toastStore.success('Đã hủy đơn hàng thành công')
+      closeConfirmModal()
+    } else {
+      toastStore.error(result.error || 'Không thể hủy đơn hàng')
     }
+  } catch (error) {
+    console.error('Cancel order error:', error)
+    toastStore.error('Có lỗi xảy ra khi hủy đơn hàng')
   }
 }
 
@@ -338,21 +374,20 @@ const writeReview = (order) => {
   toastStore.info('Chức năng đánh giá sẽ được phát triển sớm')
 }
 
-const fetchOrders = async () => {
+const fetchUserOrders = async () => {
   try {
-    // API call to fetch user orders
-    // const response = await orderAPI.getUserOrders()
-    // orders.value = response.data
+    const result = await orderStore.fetchUserOrders()
     
-    // Mock data for now
-    orders.value = mockOrders
+    if (!result.success) {
+      toastStore.error(result.error || 'Có lỗi xảy ra khi tải danh sách đơn hàng')
+    }
   } catch (error) {
+    console.error('Error fetching user orders:', error)
     toastStore.error('Có lỗi xảy ra khi tải danh sách đơn hàng')
-    console.error('Error fetching orders:', error)
   }
 }
 
 onMounted(() => {
-  fetchOrders()
+  fetchUserOrders()
 })
 </script>
