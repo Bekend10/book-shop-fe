@@ -30,9 +30,9 @@
       <div class="flex items-center mb-2 text-sm">
         <div class="flex items-center">
           <Star class="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
-          <span class="text-xs sm:text-sm  ml-1">{{ book.rating }}</span>
+          <span class="text-xs sm:text-sm  ml-1">{{ averageRating }}</span>
         </div>
-        <span class="text-xs sm:text-sm ml-2">({{ book.count_review }})</span>
+        <span class="text-xs sm:text-sm ml-2">({{ reviewCount }})</span>
       </div>
 
       <div class="flex items-center justify-between mb-3 sm:mb-4">
@@ -60,8 +60,10 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { Star } from 'lucide-vue-next'
 import { useCartStore } from '@/stores/cartStore'
+import { useReviewStore } from '@/stores/reviewStore'
 import CompactAddToCartButton from '@/components/common/CompactAddToCartButton.vue'
 
 const props = defineProps({
@@ -72,6 +74,17 @@ const props = defineProps({
 })
 
 const cartStore = useCartStore()
+const reviewStore = useReviewStore()
+
+const averageRating = computed(() => {
+  const rating = reviewStore.getAverageRating(props.book.book_id)
+  return rating > 0 ? rating : (props.book.rating || 0)
+})
+
+const reviewCount = computed(() => {
+  const count = reviewStore.getReviewCount(props.book.book_id)
+  return count > 0 ? count : (props.book.count_review || 0)
+})
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)

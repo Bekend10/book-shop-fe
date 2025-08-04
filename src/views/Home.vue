@@ -79,8 +79,10 @@ import { ref, computed, onMounted } from 'vue'
 import { BookOpen } from 'lucide-vue-next'
 import BookCard from '@/components/BookCard.vue'
 import { useBookStore } from '@/stores/bookStore'
+import { useReviewStore } from '@/stores/reviewStore'
 
 const bookStore = useBookStore()
+const reviewStore = useReviewStore()
 const booksSection = ref(null)
 
 const books = computed(() => bookStore.books)
@@ -94,6 +96,7 @@ onMounted(() => {
   bookStore.fetchBooks()
   bookStore.fetchCategoriesAndAuthors()
   bookStore.fetchTopProducts()
+  reviewStore.fetchAllReviews()
 })
 
 </script>

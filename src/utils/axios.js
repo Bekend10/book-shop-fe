@@ -26,7 +26,7 @@ axios.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token hết hạn hoặc không hợp lệ
       localStorage.removeItem('access_token') // Xóa token
-      window.location.href = '/accounts/login' // Redirect to login page
+      window.location.href = '/login' // Redirect to login page
     }
     return Promise.reject(error)
   }
