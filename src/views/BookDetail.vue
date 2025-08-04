@@ -122,6 +122,13 @@
         </div>
       </div>
 
+      <!-- Reviews Section -->
+      <div v-if="book" class="mt-12">
+        <div class="max-w-4xl mx-auto">
+          <ReviewsContainer :book-id="book.book_id" />
+        </div>
+      </div>
+
       <!-- Book not found -->
       <div v-else class="text-center py-12">
         <BookOpen class="h-16 w-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
@@ -140,10 +147,11 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ShoppingCart, Heart, Star, Minus, Plus, BookOpen } from 'lucide-vue-next'
 import { useBookStore } from '@/stores/bookStore'
 import { useCartStore } from '@/stores/cartStore'
+import ReviewsContainer from '@/components/reviews/ReviewsContainer.vue'
 
 const props = defineProps({
   id: {
