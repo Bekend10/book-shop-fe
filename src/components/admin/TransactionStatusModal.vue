@@ -239,10 +239,6 @@ const validateForm = () => {
 
 const updateTransactionStatus = async () => {
   if (!validateForm()) return
-
-  console.log('TransactionStatusModal - formData:', formData.value);
-  console.log('TransactionStatusModal - transaction:', props.transaction);
-
   isLoading.value = true
 
   try {
@@ -264,8 +260,6 @@ const updateTransactionStatus = async () => {
       transactionId: props.transaction.transaction_id,
       updateData
     };
-
-    console.log('TransactionStatusModal - emitting:', emitData);
 
     emit('updated', emitData)
 

@@ -194,12 +194,9 @@ const closeStatusModal = () => {
     selectedOrder.value = null
 }
 
-const handleStatusUpdate = async ({ orderId, updateData }) => {
-    console.log('handleStatusUpdate called with:', { orderId, updateData });
-    
+const handleStatusUpdate = async ({ orderId, updateData }) => {    
     try {
         const result = await orderStore.updateOrderStatus(orderId, updateData);
-        console.log('Update result:', result);
         
         if (result.success) {
             // Show success toast

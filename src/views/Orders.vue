@@ -39,9 +39,9 @@
       </div>
 
       <!-- Orders List -->
-      <div v-else-if="filteredOrders.length > 0" class="space-y-6">
+      <div v-else-if="paginatedOrders.length > 0" class="space-y-6">
         <div 
-          v-for="order in filteredOrders" 
+          v-for="order in paginatedOrders" 
           :key="order.order_id || order.id"
           class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
         >
@@ -152,6 +152,51 @@
         </div>
       </div>
 
+      <!-- Pagination -->
+      <div v-if="filteredOrders.length > 0 && totalPages > 1" class="mt-8 flex items-center justify-between">
+        <div class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+          <span>
+            Hiển thị {{ ((currentPage - 1) * itemsPerPage) + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredOrders.length) }} 
+            trong {{ filteredOrders.length }} đơn hàng
+          </span>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+          <!-- Previous Button -->
+          <button
+            @click="changePage(currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
+          >
+            Trước
+          </button>
+          
+          <!-- Page Numbers -->
+          <button
+            v-for="page in Array.from({length: totalPages}, (_, i) => i + 1)"
+            :key="page"
+            @click="changePage(page)"
+            :class="[
+              'px-3 py-2 text-sm font-medium rounded-md',
+              page === currentPage
+                ? 'bg-blue-600 text-white border border-blue-600'
+                : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+            ]"
+          >
+            {{ page }}
+          </button>
+          
+          <!-- Next Button -->
+          <button
+            @click="changePage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
+          >
+            Sau
+          </button>
+        </div>
+      </div>
+
       <!-- Empty State -->
       <div v-else-if="!isLoading" class="text-center py-12">
         <Package class="mx-auto h-12 w-12 text-gray-400" />
@@ -232,6 +277,26 @@ const orderStatuses = computed(() => [
   { value: 3, label: 'Đã giao', count: orders.value.filter(o => o.status === 3).length },
   { value: 4, label: 'Đã hủy', count: orders.value.filter(o => o.status === 4).length }
 ])
+
+// Pagination
+const currentPage = ref(1)
+const itemsPerPage = ref(5)
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredOrders.value.length / itemsPerPage.value)
+})
+
+const paginatedOrders = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredOrders.value.slice(start, end)
+})
+
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+  }
+}
 
 const filteredOrders = computed(() => {
   if (activeStatus.value === 'all') {
