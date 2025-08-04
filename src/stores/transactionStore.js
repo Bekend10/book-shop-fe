@@ -99,7 +99,6 @@ export const useTransactionStore = defineStore("transaction", () => {
   };
 
   const updateTransactionStatus = async (transactionId, updateData) => {
-    console.log('updateTransactionStatus called with:', { transactionId, updateData });
     
     isLoading.value = true;
     error.value = null;
@@ -118,17 +117,10 @@ export const useTransactionStore = defineStore("transaction", () => {
         status: parseInt(updateData.status)
       };
       
-      console.log('Making request with:', {
-        url: `/transactions/update-transaction?id=${transactionId}`,
-        body: requestBody
-      });
-
       const response = await axios.put(
         `/transactions/update-transaction?id=${transactionId}`,
         requestBody
       );
-
-      console.log('Response received:', response.data);
 
       if (response.data.status === 200) {
         // Update local state
@@ -137,7 +129,6 @@ export const useTransactionStore = defineStore("transaction", () => {
         );
         if (transactionIndex !== -1) {
           transactions.value[transactionIndex].status = parseInt(updateData.status);
-          console.log('Updated local transaction status:', transactions.value[transactionIndex]);
         }
         return { success: true, data: response.data };
       } else {

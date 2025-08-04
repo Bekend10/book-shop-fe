@@ -61,7 +61,7 @@
             
             <div class="space-y-6">
               <div 
-                v-for="item in cartStore.cartItems" 
+                v-for="item in paginatedCartItems" 
                 :key="item.book_id"
                 class="flex items-start space-x-4 pb-6 border-b border-gray-200 dark:border-gray-700 last:border-b-0 last:pb-0"
               >
@@ -155,6 +155,53 @@
                     </span>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Cart Pagination -->
+          <div v-if="cartStore.cartItems.length > cartItemsPerPage && cartTotalPages > 1" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                <span>
+                  Hiển thị {{ ((cartCurrentPage - 1) * cartItemsPerPage) + 1 }} - {{ Math.min(cartCurrentPage * cartItemsPerPage, cartStore.cartItems.length) }} 
+                  trong {{ cartStore.cartItems.length }} sản phẩm
+                </span>
+              </div>
+              
+              <div class="flex items-center space-x-2">
+                <!-- Previous Button -->
+                <button
+                  @click="changeCartPage(cartCurrentPage - 1)"
+                  :disabled="cartCurrentPage === 1"
+                  class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-600"
+                >
+                  Trước
+                </button>
+                
+                <!-- Page Numbers -->
+                <button
+                  v-for="page in Array.from({length: cartTotalPages}, (_, i) => i + 1)"
+                  :key="page"
+                  @click="changeCartPage(page)"
+                  :class="[
+                    'px-3 py-1 text-sm font-medium rounded-md',
+                    page === cartCurrentPage
+                      ? 'bg-blue-600 text-white border border-blue-600'
+                      : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600'
+                  ]"
+                >
+                  {{ page }}
+                </button>
+                
+                <!-- Next Button -->
+                <button
+                  @click="changeCartPage(cartCurrentPage + 1)"
+                  :disabled="cartCurrentPage === cartTotalPages"
+                  class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-600"
+                >
+                  Sau
+                </button>
               </div>
             </div>
           </div>
@@ -407,6 +454,26 @@ const applyCoupon = async () => {
     }
   } catch (error) {
     toastStore.error('Mã giảm giá không hợp lệ')
+  }
+}
+
+// Pagination
+const cartCurrentPage = ref(1)
+const cartItemsPerPage = ref(3)
+
+const cartTotalPages = computed(() => {
+  return Math.ceil(cartStore.cartItems.length / cartItemsPerPage.value)
+})
+
+const paginatedCartItems = computed(() => {
+  const start = (cartCurrentPage.value - 1) * cartItemsPerPage.value
+  const end = start + cartItemsPerPage.value
+  return cartStore.cartItems.slice(start, end)
+})
+
+const changeCartPage = (page) => {
+  if (page >= 1 && page <= cartTotalPages.value) {
+    cartCurrentPage.value = page
   }
 }
 

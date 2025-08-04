@@ -246,6 +246,186 @@ export const useOrderStore = defineStore("order", () => {
     }
   };
 
+  // Create Order - Tạo đơn hàng trước
+  const createOrder = async (methodId, items) => {
+    isLoading.value = true;
+    error.value = null;
+
+    try {
+      // Validate inputs
+      if (!methodId || !items || !Array.isArray(items) || items.length === 0) {
+        throw new Error('Dữ liệu đầu vào không hợp lệ');
+      }
+
+      const orderRequest = {
+        method_id: methodId,
+        items: items.map(item => {
+          const bookId = item.book_id || item.id;
+          const unitPrice = item.book?.price || item.price;
+          
+          if (!bookId || !item.quantity || !unitPrice) {
+            console.error('Invalid item data:', item);
+            throw new Error(`Dữ liệu sản phẩm không hợp lệ: ${item.book?.title || 'Không xác định'}`);
+          }
+          
+          return {
+            book_id: parseInt(bookId),
+            quantity: parseInt(item.quantity),
+            unit_price: parseFloat(unitPrice)
+          };
+        })
+      };
+
+      const response = await axios.post("/orders/create-order-by-cart", orderRequest);
+
+      // Kiểm tra các status code khả dĩ: 200, 201
+      if (response.data.status === 200 || response.data.status === 201) {        
+        // API trả về order_id trực tiếp trong response.data
+        if (response.data.order_id) {
+          const order = {
+            order_id: response.data.order_id,
+            status: 0, // Pending status
+            message: response.data.message,
+            created_at: new Date().toISOString(),
+            method_id: methodId
+          };
+                    
+          // Cập nhật danh sách orders
+          orders.value.unshift(order);
+          
+          return {
+            success: true,
+            data: order,
+            orderId: order.order_id
+          };
+        } else {
+          throw new Error('API không trả về order_id');
+        }
+      } else {
+        console.error('API returned error status:', response.data.status);
+        throw new Error(response.data.message || 'Không thể tạo đơn hàng');
+      }
+    } catch (err) {
+      console.error('Create Order Error:', err);
+      error.value = err.response?.data?.message || err.message || 'Không thể tạo đơn hàng';
+      return {
+        success: false,
+        error: error.value
+      };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  // Create Payment - Tạo thanh toán với orderId
+  const createPayment = async (orderId, methodId) => {
+    isLoading.value = true;
+    error.value = null;
+
+    try {
+      const paymentRequest = {
+        orderId: orderId,
+        methodId: methodId,
+        paymentDate: new Date().toISOString()
+      };
+
+      const response = await axios.post("/payments/create-payment", paymentRequest);
+      
+
+      if (response.data.status === 200) {
+        
+        // Trả về kết quả khác nhau tùy theo phương thức thanh toán
+        if (methodId === 1) { // COD
+          return {
+            success: true,
+            data: response.data,
+            message: 'Đặt hàng COD thành công'
+          };
+        } else { // VNPAY hoặc FE HOME
+          // API trả về paymentUrl trực tiếp trong response.data
+          const paymentUrl = response.data.paymentUrl;
+                    
+          if (!paymentUrl) {     
+            throw new Error('Không tìm thấy URL thanh toán');
+          }
+          
+          return {
+            success: true,
+            paymentUrl: paymentUrl,
+            orderId: orderId,
+            data: response.data,
+            message: response.data.message
+          };
+        }
+      } else {
+        throw new Error(response.data.message || 'Không thể tạo thanh toán');
+      }
+    } catch (err) {
+      console.error('Payment Error:', err);
+      error.value = err.response?.data?.message || err.message || 'Không thể tạo thanh toán';
+      return {
+        success: false,
+        error: error.value
+      };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  // Verify Payment (for callback handling)
+  const verifyPayment = async (paymentMethod, params) => {
+    isLoading.value = true;
+    error.value = null;
+
+    try {
+      let response;
+      
+      if (paymentMethod === 'vnpay') {
+        // For VNPAY, we need to update order status based on callback params
+        const orderId = params.vnp_TxnRef; // Order ID from VNPAY
+        
+        response = await axios.post(`/payments/verify-vnpay-callback`, {
+          orderId: orderId,
+          vnpayParams: params
+        });
+      } else {
+        // For other payment methods
+        response = await axios.post(`/payments/verify-${paymentMethod}-payment`, params);
+      }
+      
+      if (response.data.status === 200) {
+        const order = response.data.data.order || response.data.data;
+        
+        // Update local orders if order exists
+        if (order) {
+          const existingOrderIndex = orders.value.findIndex(o => o.order_id === order.order_id);
+          if (existingOrderIndex !== -1) {
+            orders.value[existingOrderIndex] = order;
+          } else {
+            orders.value.unshift(order);
+          }
+        }
+        
+        return {
+          success: true,
+          data: response.data.data,
+          message: 'Thanh toán thành công'
+        };
+      } else {
+        throw new Error(response.data.message || 'Xác thực thanh toán thất bại');
+      }
+    } catch (err) {
+      console.error('Payment Verification Error:', err);
+      error.value = err.response?.data?.message || err.message || 'Xác thực thanh toán thất bại';
+      return {
+        success: false,
+        error: error.value
+      };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
   return {
     orders,
     isLoading,
@@ -264,5 +444,8 @@ export const useOrderStore = defineStore("order", () => {
     deleteOrder,
     fetchUserOrders,
     cancelOrder,
+    createOrder,
+    createPayment,
+    verifyPayment,
   };
 });

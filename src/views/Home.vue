@@ -36,8 +36,8 @@
           <hr class="border-gray-300 dark:border-gray-600 mb-6" />
         </div>
         <div class="flex flex-wrap justify-center gap-2 mb-8">
-          <button v-for="category in categories" :key="category" @click="setCategory(category.name)"
-            :class="['category-button', selectedCategory === category.id ? 'active' : '']">
+          <button v-for="category in categories" :key="category.id || category.name" @click="setCategory(category.name)"
+            :class="['category-button', selectedCategory === category.name ? 'active' : '']">
             {{ category.name }}
           </button>
         </div>
@@ -92,6 +92,8 @@ const scrollToBooks = () => booksSection.value?.scrollIntoView({ behavior: 'smoo
 
 onMounted(() => {
   bookStore.fetchBooks()
+  bookStore.fetchCategoriesAndAuthors()
+  bookStore.fetchTopProducts()
 })
 
 </script>

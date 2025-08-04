@@ -229,12 +229,9 @@ const closeStatusModal = () => {
     selectedTransaction.value = null
 }
 
-const handleStatusUpdate = async ({ transactionId, updateData }) => {
-    console.log('handleStatusUpdate called with:', { transactionId, updateData });
-    
+const handleStatusUpdate = async ({ transactionId, updateData }) => {    
     try {
         const result = await transactionStore.updateTransactionStatus(transactionId, updateData);
-        console.log('Update result:', result);
         
         if (result.success) {
             // Show success toast

@@ -98,6 +98,16 @@ const router = createRouter({
       meta: { requiresAdmin: true } 
     },
     {
+      path: '/payment/vnpay/callback',
+      name: 'vnpay-callback',
+      component: () => import('@/views/payment/VNPayCallback.vue')
+    },
+    {
+      path: '/payment/fe-home/callback',
+      name: 'fe-home-callback',
+      component: () => import('@/views/payment/FEHomeCallback.vue')
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: NotFound,
