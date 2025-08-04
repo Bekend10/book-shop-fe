@@ -246,8 +246,6 @@ const updateOrderStatus = async () => {
       updateData
     };
 
-    console.log('OrderStatusModal - emitting:', emitData);
-
     emit('updated', emitData)
 
     closeModal()

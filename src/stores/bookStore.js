@@ -7,6 +7,7 @@ import { useAuthorStore } from "./authorStore";
 export const useBookStore = defineStore("book", () => {
   // State
   const books = ref([]);
+  const topProducts = ref([]);
   const categories = ref([{ id: null, name: "Tất cả" }]);
   const authors = ref([{ id: null, name: "Tất cả" }]);
   const selectedCategory = ref("Tất cả");
@@ -51,6 +52,15 @@ export const useBookStore = defineStore("book", () => {
     }
   };
 
+  const fetchTopProducts = async () => {
+    try {
+      const response = await axios.get("/books/get-top-products");
+      topProducts.value = response.data.data;
+    } catch (err) {
+      console.error("Lỗi fetch top products:", err);
+    }
+  };
+
   const fetchCategoriesAndAuthors = async () => {
     try {
       const categoryStore = useCategoryStore();
@@ -62,7 +72,7 @@ export const useBookStore = defineStore("book", () => {
         id: cat.category_id,
         name: cat.name
       }));
-      
+       
       // Fetch authors from author store
       await authorStore.fetchAuthors();
       const authorList = authorStore.authors.map(author => ({
@@ -87,7 +97,26 @@ export const useBookStore = defineStore("book", () => {
     books.value.find((book) => book.book_id === parseInt(id));
 
   const featuredBooks = computed(() => {
-    return books.value.filter((book) => book.rating >= 4.7).slice(0, 4);
+    // Transform top products to match book structure
+    return topProducts.value.map(product => ({
+      book_id: product.product_id,
+      title: product.name,
+      image_url: product.image,
+      category: {
+        name: product.category_name
+      },
+      author: {
+        name: product.author.name
+      },
+      quantity_sold: product.quantity_sold,
+      revenue: product.revenue,
+      rating: 5.0, // Default rating for top products
+      count_review: product.quantity_sold, // Use quantity sold as review count
+      price: product.revenue / Math.max(product.quantity_sold, 1), // Calculate average price
+      price_origin: product.revenue / Math.max(product.quantity_sold, 1) * 1.2, // Simulated original price
+      quantity: 50, // Default quantity available
+      is_bn: true // Default in stock
+    }));
   });
 
   const addBook = async (book) => {
@@ -151,6 +180,7 @@ export const useBookStore = defineStore("book", () => {
 
   return {
     books,
+    topProducts,
     categories,
     authors,
     selectedCategory,
@@ -160,6 +190,7 @@ export const useBookStore = defineStore("book", () => {
     isLoading,
     error,
     fetchBooks,
+    fetchTopProducts,
     fetchCategoriesAndAuthors,
     addBook,
     updateBook,

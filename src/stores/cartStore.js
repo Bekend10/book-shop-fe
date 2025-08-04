@@ -166,7 +166,7 @@ export const useCartStore = defineStore('cart', () => {
             }
           })
         }
-        return { success: true, message: response.data.msg || 'Đã thêm vào giỏ hàng' }
+        return { success: true, message: 'Đã thêm vào giỏ hàng' }
       }
       
       return { success: false, error: err.response?.data?.msg || 'Không thể thêm vào giỏ hàng' }
