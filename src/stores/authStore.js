@@ -10,6 +10,7 @@ export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: JSON.parse(localStorage.getItem("user")) || null,
     token: localStorage.getItem("access_token") || null,
+    refreshToken: localStorage.getItem("refresh_token") || null,
     isLoading: false,
     error: null,
   }),
@@ -36,9 +37,13 @@ export const useAuthStore = defineStore("auth", {
         }
 
         this.token = response.data.access_token;
+        this.refreshToken = response.data.refresh_token;
         this.user = response.data.user;
 
         localStorage.setItem("access_token", response.data.access_token);
+        if (response.data.refresh_token) {
+          localStorage.setItem("refresh_token", response.data.refresh_token);
+        }
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
         // Fetch cart after successful login
@@ -78,9 +83,13 @@ export const useAuthStore = defineStore("auth", {
         }
         // Lưu token và thông tin user
         this.token = response.data.access_token;
+        this.refreshToken = response.data.refresh_token;
         this.user = response.data.user;
 
         localStorage.setItem("access_token", response.data.access_token);
+        if (response.data.refresh_token) {
+          localStorage.setItem("refresh_token", response.data.refresh_token);
+        }
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
         return {
@@ -110,15 +119,52 @@ export const useAuthStore = defineStore("auth", {
         // Clear state
         this.user = null;
         this.token = null;
+        this.refreshToken = null;
         this.error = null;
 
         // Clear localStorage
         localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
         localStorage.removeItem("user");
 
         // Clear cart data
         const cartStore = useCartStore();
         cartStore.clearCartData();
+      }
+    },
+
+    async refreshToken() {
+      if (!this.refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      try {
+        // Sử dụng axios trực tiếp để tránh interceptor loop
+        const axiosInstance = (await import('@/utils/axios')).default;
+        
+        const response = await axiosInstance.create({
+          baseURL: import.meta.env.VITE_API_URL || 'https://localhost:7096/api/v1'
+        }).post("/accounts/refresh-token", {
+          refresh_token: this.refreshToken
+        });
+
+        // Cập nhật token mới
+        this.token = response.data.access_token;
+        if (response.data.refresh_token) {
+          this.refreshToken = response.data.refresh_token;
+          localStorage.setItem("refresh_token", response.data.refresh_token);
+        }
+        localStorage.setItem("access_token", response.data.access_token);
+
+        return {
+          success: true,
+          access_token: response.data.access_token
+        };
+      } catch (error) {
+        // Nếu refresh token cũng hết hạn, logout user
+        console.error('Refresh token failed:', error);
+        await this.logout();
+        throw error;
       }
     },
 
@@ -152,9 +198,13 @@ export const useAuthStore = defineStore("auth", {
         }
 
         this.token = response.data.access_token;
+        this.refreshToken = response.data.refresh_token;
         this.user = response.data.user;
 
         localStorage.setItem("access_token", response.data.access_token);
+        if (response.data.refresh_token) {
+          localStorage.setItem("refresh_token", response.data.refresh_token);
+        }
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
         // Fetch cart after successful Google login
@@ -181,9 +231,13 @@ export const useAuthStore = defineStore("auth", {
       try {
         const res = await axios.post("/accounts/login-facebook", { token });
         this.token = res.data.access_token;
+        this.refreshToken = res.data.refresh_token;
         this.user = res.data.user;
 
         localStorage.setItem("access_token", res.data.access_token);
+        if (res.data.refresh_token) {
+          localStorage.setItem("refresh_token", res.data.refresh_token);
+        }
         localStorage.setItem("user", JSON.stringify(res.data.user));
 
         // Fetch cart after successful Facebook login
@@ -229,12 +283,14 @@ export const useAuthStore = defineStore("auth", {
     async initializeAuth() {
       // Kiểm tra localStorage có token không
       const token = localStorage.getItem("access_token");
+      const refreshToken = localStorage.getItem("refresh_token");
       const user = localStorage.getItem("user");
 
       if (token && user) {
         try {
           // Khôi phục thông tin từ localStorage
           this.token = token;
+          this.refreshToken = refreshToken;
           this.user = JSON.parse(user);
         } catch (error) {
           // Nếu token không hợp lệ, clear localStorage
