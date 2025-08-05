@@ -97,26 +97,26 @@ export const useRevenueStore = defineStore('revenue', () => {
   const exportRevenueReport = async (format = 'excel') => {
     try {
       // Tạm thời chỉ hiển thị thông báo
-      toastStore.success(`Tính năng xuất báo cáo ${format.toUpperCase()} sẽ được cập nhật sau`)
+      // toastStore.success(`Tính năng xuất báo cáo ${format.toUpperCase()} sẽ được cập nhật sau`)
       
       // Code thực tế khi có API
-      // const response = await axios.get(`/reports/export/${format}`, {
-      //   params: {
-      //     start_date: dateRange.value.startDate,
-      //     end_date: dateRange.value.endDate
-      //   },
-      //   responseType: 'blob'
-      // })
+      const response = await axios.get(`/reports/export-order`, {
+        params: {
+          startDate: dateRange.value.startDate,
+          endDate: dateRange.value.endDate
+        },
+        responseType: 'blob'
+      })
 
       // // Create download link
-      // const url = window.URL.createObjectURL(new Blob([response.data]))
-      // const link = document.createElement('a')
-      // link.href = url
-      // link.setAttribute('download', `revenue-report-${dateRange.value.startDate}-${dateRange.value.endDate}.${format === 'excel' ? 'xlsx' : 'pdf'}`)
-      // document.body.appendChild(link)
-      // link.click()
-      // link.remove()
-      // window.URL.revokeObjectURL(url)
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `revenue-report-${dateRange.value.startDate}-${dateRange.value.endDate}.${format === 'excel' ? 'xlsx' : 'pdf'}`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
 
       return { success: true }
     } catch (error) {

@@ -225,10 +225,10 @@
                 <div class="progress-bar">
                   <div
                     class="progress-fill"
-                    :style="{ width: `${(product.revenue / topProducts[0]?.revenue * 100) || 0}%` }"
+                    :style="{ width: `${(product.quantity_sold / (topProducts[index]?.total_quantity + product.quantity_sold) * 100) || 0}%` }"
                   ></div>
                   <span class="progress-text">
-                    {{ ((product.revenue / topProducts[0]?.revenue * 100) || 0).toFixed(1) }}%
+                    {{ ((product.quantity_sold / (topProducts[index]?.total_quantity + product.quantity_sold) * 100) || 0).toFixed(1) }}%
                   </span>
                 </div>
               </td>
