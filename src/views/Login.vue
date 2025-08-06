@@ -41,6 +41,30 @@
               placeholder="Nhập mật khẩu" />
           </div>
 
+          <!-- Remember Me (chỉ hiển thị khi đăng nhập) -->
+          <div v-if="isLoginMode" class="flex items-center justify-between">
+            <div class="flex items-center">
+              <input
+                id="remember-me"
+                v-model="rememberMe"
+                type="checkbox"
+                class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+              />
+              <label for="remember-me" class="ml-2 block text-sm text-gray-900 dark:text-gray-900 cursor-pointer">
+                Ghi nhớ đăng nhập 
+              </label>
+            </div>
+            <div class="text-sm">
+              <a 
+                href="#" 
+                @click.prevent="handleForgotPassword"
+                class="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+              >
+                Quên mật khẩu?
+              </a>
+            </div>
+          </div>
+
           <!-- Name (chỉ hiển thị khi đăng ký) -->
           <div v-if="!isLoginMode">
             <label for="name" class="block text-sm font-medium text-black dark:text-black-300">
@@ -116,17 +140,19 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { BookOpen } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/authStore'
 import { useToastStore } from '@/stores/toastStore'
+import { secureLocalStorage } from '@/utils/secureStorage'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const toastStore = useToastStore()
 
 const isLoginMode = ref(true)
+const rememberMe = ref(false)
 const form = reactive({
   email: '',
   password: '',
@@ -136,6 +162,7 @@ const form = reactive({
 
 const toggleMode = () => {
   isLoginMode.value = !isLoginMode.value
+  rememberMe.value = false
   authStore.error = null
   Object.keys(form).forEach(key => {
     form[key] = ''
@@ -146,12 +173,33 @@ const handleSubmit = async () => {
   try {
     let result
     if (isLoginMode.value) {
-      result = await authStore.login({ email: form.email, password: form.password })
+      result = await authStore.login({ 
+        email: form.email, 
+        password: form.password,
+        remember_me: rememberMe.value 
+      })
     } else {
       result = await authStore.register({ ...form })
     }
 
     if (result.data.status === 200 || result.data.status === 201) {
+      // Xử lý ghi nhớ đăng nhập với mã hóa
+      if (isLoginMode.value) {
+        if (rememberMe.value) {
+          // Lưu thông tin đăng nhập với mã hóa
+          try {
+            localStorage.setItem('remembered_email', form.email) // Email không cần mã hóa
+            await secureLocalStorage.setItem('remembered_password_hash', form.password, form.email)
+          } catch (error) {
+            console.error('Failed to save encrypted credentials:', error)
+            toastStore.warning('Không thể lưu thông tin đăng nhập do lỗi mã hóa')
+          }
+        } else {
+          // Xóa thông tin đăng nhập đã lưu
+          secureLocalStorage.clearCredentials()
+        }
+      }
+
       toastStore.success(isLoginMode.value ? 'Đăng nhập thành công!' : 'Đăng ký thành công!')
       setTimeout(() => {
         router.push(authStore.isAdmin ? '/admin' : (router.currentRoute.value.query.redirect || '/'))
@@ -163,6 +211,50 @@ const handleSubmit = async () => {
     toastStore.error('Tài khoản hoặc mật khẩu không đúng.')
   }
 };
+
+// Watcher để theo dõi thay đổi của form và tự động bỏ chọn "Ghi nhớ" nếu cần
+watch([() => form.email, () => form.password], async ([newEmail, newPassword]) => {
+  if (rememberMe.value && isLoginMode.value) {
+    const savedEmail = localStorage.getItem('remembered_email')
+    const savedPassword = await secureLocalStorage.getItem('remembered_password_hash', newEmail)
+    
+    if (savedEmail !== newEmail || savedPassword !== newPassword) {
+      rememberMe.value = false
+    }
+  }
+})
+
+const handleForgotPassword = () => {
+  // Xóa thông tin ghi nhớ khi user click "Quên mật khẩu"
+  secureLocalStorage.clearCredentials()
+  authStore.clearRememberedCredentials() // Backup clear
+  rememberMe.value = false
+  form.email = ''
+  form.password = ''
+  
+  toastStore.info('Thông tin đăng nhập đã lưu đã được xóa. Vui lòng liên hệ admin để reset mật khẩu.')
+}
+
+// Method để validate và clean up dữ liệu mã hóa không hợp lệ
+const validateStoredCredentials = async () => {
+  try {
+    const savedEmail = localStorage.getItem('remembered_email')
+    if (!savedEmail) return false
+
+    const savedPassword = await secureLocalStorage.getItem('remembered_password_hash', savedEmail)
+    if (!savedPassword || savedPassword.length < 3) {
+      // Dữ liệu không hợp lệ, clear tất cả
+      secureLocalStorage.clearCredentials()
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Validation failed, clearing corrupted data:', error)
+    secureLocalStorage.clearCredentials()
+    return false
+  }
+}
 
 const handleFacebookLogin = () => {
   if (!window.FB) {
@@ -225,7 +317,27 @@ const loginWithFacebookToken = async (token) => {
 };
 
 
-onMounted(() => {
+onMounted(async () => {
+  // Khôi phục thông tin đăng nhập đã lưu với giải mã
+  try {
+    const isValid = await validateStoredCredentials()
+    
+    if (isValid) {
+      const savedEmail = localStorage.getItem('remembered_email')
+      const savedPassword = await secureLocalStorage.getItem('remembered_password_hash', savedEmail)
+      
+      if (savedEmail && savedPassword) {
+        form.email = savedEmail
+        form.password = savedPassword
+        rememberMe.value = true
+      }
+    }
+  } catch (error) {
+    console.error('Failed to restore encrypted credentials:', error)
+    // Clear corrupted data
+    secureLocalStorage.clearCredentials()
+  }
+
   const script = document.createElement('script')
   const fbScript = document.createElement('script')
   fbScript.src = "https://connect.facebook.net/en_US/sdk.js"

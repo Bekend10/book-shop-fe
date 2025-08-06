@@ -126,11 +126,22 @@ export const useAuthStore = defineStore("auth", {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         localStorage.removeItem("user");
+        
+        // Note: Không xóa remembered_email và remembered_password
+        // để giữ tính năng "ghi nhớ đăng nhập"
 
         // Clear cart data
         const cartStore = useCartStore();
         cartStore.clearCartData();
       }
+    },
+
+    // Method để xóa thông tin ghi nhớ đăng nhập
+    clearRememberedCredentials() {
+      localStorage.removeItem("remembered_email");
+      localStorage.removeItem("remembered_password"); // Legacy
+      localStorage.removeItem("remembered_password_hash");
+      localStorage.removeItem("remembered_salt");
     },
 
     async refreshToken() {
