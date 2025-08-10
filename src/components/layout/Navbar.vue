@@ -22,9 +22,9 @@
 
         <!-- Navigation Links -->
         <div class="nav-links">
-          <div v-if="!isAdmin">
+          <!-- <div v-if="!isAdmin">
             <router-link to="/" class="nav-link">Trang chủ</router-link>
-          </div>
+          </div> -->
 
           <!-- Theme Toggle -->
           <button @click="toggleTheme" class="theme-toggle"
@@ -34,6 +34,17 @@
           </button>
 
           <!-- User Menu -->
+          
+          
+          <!-- Messages -->
+          <MessageIcon v-if="!isAdmin && authStore.isAuthenticated" />
+          
+          <!-- Cart -->
+          <router-link v-if="!isAdmin" to="/cart" class="cart-link">
+            <ShoppingCart class="cart-icon" />
+            <span v-if="totalItems > 0" class="cart-badge">{{ totalItems }}</span>
+          </router-link>
+
           <div v-if="authStore.isAuthenticated" class="user-menu" @click.stop>
             <button @click="toggleUserMenu" class="user-avatar-btn">
               <div class="user-avatar" :class="{ 'no-image': !authStore.user?.profile_image }">
@@ -84,15 +95,8 @@
               </div>
             </div>
           </div>
-
           <!-- Login Link -->
           <router-link v-else to="/login" class="nav-link">Đăng nhập</router-link>
-
-          <!-- Cart -->
-          <router-link v-if="!isAdmin" to="/cart" class="cart-link">
-            <ShoppingCart class="cart-icon" />
-            <span v-if="totalItems > 0" class="cart-badge">{{ totalItems }}</span>
-          </router-link>
 
         </div>
       </div>
@@ -108,6 +112,7 @@ import { useCartStore } from '@/stores/cartStore'
 import { useBookStore } from '@/stores/bookStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useToastStore } from '@/stores/toastStore'
+import MessageIcon from '@/components/MessageIcon.vue'
 
 const router = useRouter()
 const cartStore = useCartStore()

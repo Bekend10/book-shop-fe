@@ -123,6 +123,11 @@
             <AdminUserManagement />
           </div>
 
+          <!-- Messages Management -->
+          <div v-else-if="activeSection === 'messages'">
+            <AdminMessages />
+          </div>
+
           <!-- Revenue Management -->
           <div v-else-if="activeSection === 'revenue'">
             <div class="flex items-center justify-between mb-8">
@@ -243,6 +248,7 @@ import AdminSidebar from '@/components/admin/AdminSidebar.vue'
 import AdminOrders from '@/components/admin/AdminOrders.vue'
 import AdminTransactions from '@/components/admin/AdminTransactions.vue'
 import AdminUserManagement from '@/components/admin/AdminUserManagement.vue'
+import AdminMessages from '@/components/admin/AdminMessages.vue'
 import ImageUploader from '@/components/admin/ImageUploader.vue'
 import axios from 'axios'
 const toastStore = useToastStore()
@@ -280,6 +286,9 @@ const setActiveSectionFromRoute = () => {
     case 'admin-users':
       activeSection.value = 'users'
       // console.log('Set activeSection to users')
+      break
+    case 'admin-messages':
+      activeSection.value = 'messages'
       break
     case 'admin':
     default:
@@ -329,6 +338,10 @@ const changeSection = (section) => {
     case 'users':
       activeSection.value = 'users'
       router.push('/admin/users')
+      break
+    case 'messages':
+      activeSection.value = 'messages'
+      router.push('/admin/messages')
       break
     default:
       activeSection.value = section

@@ -575,7 +575,7 @@ input:focus {
 
 .relative span {
   /* background: rgba(255, 255, 255, 0.95); */
-  padding: 0 1rem;
+  /* padding: 0 1rem; */
   font-size: 0.875rem;
   /* color: #6b7280; */
   font-weight: 500;

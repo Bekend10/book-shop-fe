@@ -132,6 +132,20 @@
               <span>Quản lý người dùng</span>
             </router-link>
           </li>
+          <li>
+            <router-link
+              to="/admin/messages"
+              :class="[
+                'w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors',
+                ($route.name === 'admin-messages' || activeSection === 'messages')
+                  ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300' 
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              ]"
+            >
+              <MessageCircle class="h-4 w-4" />
+              <span>Tin nhắn</span>
+            </router-link>
+          </li>
         </ul>
       </div>
 
@@ -170,7 +184,8 @@ import {
   ShoppingBag, 
   CreditCard, 
   Users, 
-  TrendingUp 
+  TrendingUp,
+  MessageCircle
 } from 'lucide-vue-next'
 
 defineProps({
