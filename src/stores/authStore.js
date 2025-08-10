@@ -8,7 +8,15 @@ var USE_MOCK_API = false;
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    user: JSON.parse(localStorage.getItem("user")) || null,
+    user: (() => {
+      try {
+        const userData = localStorage.getItem("user");
+        return userData && userData !== "undefined" ? JSON.parse(userData) : null;
+      } catch (error) {
+        console.warn("Failed to parse user data from localStorage:", error);
+        return null;
+      }
+    })(),
     token: localStorage.getItem("access_token") || null,
     refreshToken: localStorage.getItem("refresh_token") || null,
     isLoading: false,
@@ -49,6 +57,14 @@ export const useAuthStore = defineStore("auth", {
         // Fetch cart after successful login
         const cartStore = useCartStore();
         await cartStore.initializeCart();
+
+        // Connect to SignalR for real-time messaging
+        try {
+          const { signalRService } = await import('@/services/signalRService');
+          await signalRService.connect();
+        } catch (error) {
+          console.warn('Failed to connect SignalR:', error);
+        }
 
         return {
           success: true,
@@ -133,6 +149,23 @@ export const useAuthStore = defineStore("auth", {
         // Clear cart data
         const cartStore = useCartStore();
         cartStore.clearCartData();
+
+        // Disconnect SignalR
+        try {
+          const { signalRService } = await import('@/services/signalRService');
+          await signalRService.disconnect();
+        } catch (error) {
+          console.warn('Failed to disconnect SignalR:', error);
+        }
+
+        // Clear message store
+        try {
+          const { useMessageStore } = await import('@/stores/messageStore');
+          const messageStore = useMessageStore();
+          messageStore.clearMessages();
+        } catch (error) {
+          console.warn('Failed to clear message store:', error);
+        }
       }
     },
 
@@ -222,6 +255,14 @@ export const useAuthStore = defineStore("auth", {
         const cartStore = useCartStore();
         await cartStore.initializeCart();
 
+        // Connect to SignalR for real-time messaging
+        try {
+          const { signalRService } = await import('@/services/signalRService');
+          await signalRService.connect();
+        } catch (error) {
+          console.warn('Failed to connect SignalR:', error);
+        }
+
         return {
           success: true,
           status: response.status,
@@ -254,6 +295,14 @@ export const useAuthStore = defineStore("auth", {
         // Fetch cart after successful Facebook login
         const cartStore = useCartStore();
         await cartStore.initializeCart();
+
+        // Connect to SignalR for real-time messaging
+        try {
+          const { signalRService } = await import('@/services/signalRService');
+          await signalRService.connect();
+        } catch (error) {
+          console.warn('Failed to connect SignalR:', error);
+        }
 
         return { success: true, data: res.data };
       } catch (error) {
@@ -297,12 +346,13 @@ export const useAuthStore = defineStore("auth", {
       const refreshToken = localStorage.getItem("refresh_token");
       const user = localStorage.getItem("user");
 
-      if (token && user) {
+      if (token && user && user !== "undefined") {
         try {
           // Khôi phục thông tin từ localStorage
           this.token = token;
           this.refreshToken = refreshToken;
           this.user = JSON.parse(user);
+         
         } catch (error) {
           // Nếu token không hợp lệ, clear localStorage
           this.logout();
