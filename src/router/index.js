@@ -10,6 +10,7 @@ import Login from '@/views/Login.vue'
 import Profile from '@/views/Profile.vue'
 import Orders from '@/views/Orders.vue'
 import Revenue from '@/views/admin/RevenueManagement.vue'
+import MessageManagement from '@/views/admin/MessageManagement.vue'
 import NotFound from '@/views/NotFound.vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useToastStore } from '@/stores/toastStore'
@@ -88,7 +89,7 @@ const router = createRouter({
     {
       path: '/admin/users',
       name: 'admin-users',
-      component: Admin,
+      component: () => import('@/views/admin/UserManagement.vue'),
       meta: { requiresAdmin: true }
     },
     {
@@ -96,6 +97,12 @@ const router = createRouter({
       name: 'admin-revenue',
       component: Revenue,
       meta: { requiresAdmin: true } 
+    },
+    {
+      path: '/admin/messages',
+      name: 'admin-messages',
+      component: MessageManagement,
+      meta: { requiresAdmin: true }
     },
     {
       path: '/payment/vnpay/callback',
