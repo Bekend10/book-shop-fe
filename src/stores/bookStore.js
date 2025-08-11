@@ -4,7 +4,7 @@ import axios from "@/utils/axios";
 import { useCategoryStore } from "./categoryStore";
 import { useAuthorStore } from "./authorStore";
 
-export const useBookStore = defineStore("book", () => {
+export const useBookStore = defineStore("book", () => {  
   // State
   const books = ref([]);
   const topProducts = ref([]);
@@ -15,16 +15,26 @@ export const useBookStore = defineStore("book", () => {
   const isLoading = ref(false);
   const error = ref(null);
 
+  // Pagination state
+  const currentPage = ref(1);
+  const pageSize = ref(20);
+  const totalItems = ref(0);
+
+  // Sort state
+  const sortBy = ref('title-asc'); // title-asc, title-desc, price-asc, price-desc, rating-desc, created-desc
+  
   // Getters
   const filteredBooks = computed(() => {
     let filtered = books.value;
 
+    // Filter by category
     if (selectedCategory.value !== "Tất cả") {
       filtered = filtered.filter(
         (book) => book.category?.name === selectedCategory.value
       );
     }
 
+    // Filter by search query
     if (searchQuery.value) {
       const query = searchQuery.value.toLowerCase();
       filtered = filtered.filter(
@@ -34,7 +44,47 @@ export const useBookStore = defineStore("book", () => {
       );
     }
 
-    return filtered;
+    // Sort the filtered results
+    const sortedBooks = [...filtered].sort((a, b) => {
+      switch (sortBy.value) {
+        case 'title-asc':
+          return (a.title || '').localeCompare(b.title || '');
+        case 'title-desc':
+          return (b.title || '').localeCompare(a.title || '');
+        case 'price-asc':
+          return (a.price || 0) - (b.price || 0);
+        case 'price-desc':
+          return (b.price || 0) - (a.price || 0);
+        case 'rating-desc':
+          return (b.rating || 0) - (a.rating || 0);
+        case 'created-desc':
+          // Assuming books have created_at or similar field
+          return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+        case 'stock-asc':
+          return (a.quantity || 0) - (b.quantity || 0);
+        case 'stock-desc':
+          return (b.quantity || 0) - (a.quantity || 0);
+        case 'author-asc':
+          return (a.author?.name || '').localeCompare(b.author?.name || '');
+        case 'author-desc':
+          return (b.author?.name || '').localeCompare(a.author?.name || '');
+        default:
+          return 0;
+      }
+    });
+
+    return sortedBooks;
+  });
+
+  // Paginated books getter
+  const paginatedBooks = computed(() => {
+    const startIndex = (currentPage.value - 1) * pageSize.value;
+    const endIndex = startIndex + pageSize.value;
+    return filteredBooks.value.slice(startIndex, endIndex);
+  });
+
+  const totalPages = computed(() => {
+    return Math.ceil(filteredBooks.value.length / pageSize.value);
   });
 
   // Actions
@@ -172,10 +222,37 @@ export const useBookStore = defineStore("book", () => {
 
   const setCategory = (category) => {
     selectedCategory.value = category;
+    currentPage.value = 1; // Reset to first page when changing category
   };
 
   const setSearchQuery = (query) => {
     searchQuery.value = query;
+    currentPage.value = 1; // Reset to first page when searching
+  };
+
+  const setSortBy = (sort) => {
+    sortBy.value = sort;
+    currentPage.value = 1; // Reset to first page when changing sort
+  };
+
+  const updateSortBy = (newSort) => {
+    sortBy.value = newSort;
+    currentPage.value = 1;
+  };
+  
+
+  // Pagination methods
+  const setCurrentPage = (page) => {
+    currentPage.value = page;
+  };
+
+  const setPageSize = (size) => {
+    pageSize.value = size;
+    currentPage.value = 1; // Reset to first page when changing page size
+  };
+
+  const resetPagination = () => {
+    currentPage.value = 1;
   };
 
   return {
@@ -185,10 +262,16 @@ export const useBookStore = defineStore("book", () => {
     authors,
     selectedCategory,
     searchQuery,
+    sortBy,
     filteredBooks,
+    paginatedBooks,
     featuredBooks,
     isLoading,
     error,
+    currentPage,
+    pageSize,
+    totalItems,
+    totalPages,
     fetchBooks,
     fetchTopProducts,
     fetchCategoriesAndAuthors,
@@ -197,6 +280,11 @@ export const useBookStore = defineStore("book", () => {
     deleteBook,
     setCategory,
     setSearchQuery,
+    setSortBy,
+    updateSortBy,
+    setCurrentPage,
+    setPageSize,
+    resetPagination,
     getBookById,
   };
 });

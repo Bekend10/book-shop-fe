@@ -22,8 +22,26 @@
           <h2 class="text-3xl font-bold">Sách nổi bật</h2>
           <hr class="border-gray-300 dark:border-gray-600 my-6" />
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <BookCard v-for="book in filteredBooks" :key="book.book_id" :book="book" />
+        
+        <!-- Loading state -->
+        <div v-if="bookStore.isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div v-for="n in 4" :key="n" class="animate-pulse">
+            <div class="bg-gray-300 dark:bg-gray-700 h-64 rounded-lg mb-4"></div>
+            <div class="h-4 bg-gray-300 dark:bg-gray-700 rounded mb-2"></div>
+            <div class="h-4 bg-gray-300 dark:bg-gray-700 rounded w-2/3"></div>
+          </div>
+        </div>
+        
+        <!-- Featured books content -->
+        <div v-else>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <BookCard v-for="book in featuredBooks" :key="book.book_id" :book="book" />
+          </div>
+          <div v-if="featuredBooks.length === 0" class="text-center py-12">
+            <BookOpen class="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 class="text-xl font-semibold mb-2">Chưa có sách nổi bật</h3>
+            <p class="text-gray-500 dark:text-gray-400">Hệ thống đang cập nhật sách nổi bật</p>
+          </div>
         </div>
       </div>
     </section>
@@ -86,16 +104,19 @@ const reviewStore = useReviewStore()
 const booksSection = ref(null)
 
 const books = computed(() => bookStore.books)
+const featuredBooks = computed(() => bookStore.featuredBooks)
 const categories = computed(() => bookStore.categories)
 const selectedCategory = computed(() => bookStore.selectedCategory)
 const filteredBooks = computed(() => bookStore.filteredBooks)
 const setCategory = (category) => bookStore.setCategory(category)
 const scrollToBooks = () => booksSection.value?.scrollIntoView({ behavior: 'smooth' })
 
-onMounted(() => {
-  bookStore.fetchBooks()
-  bookStore.fetchCategoriesAndAuthors()
-  bookStore.fetchTopProducts()
+onMounted(async () => {
+  console.log('Home component mounted - fetching data...')
+  await bookStore.fetchBooks()
+  await bookStore.fetchCategoriesAndAuthors()
+  await bookStore.fetchTopProducts()
+  console.log('Featured books loaded:', bookStore.featuredBooks.length)
   reviewStore.fetchAllReviews()
 })
 
