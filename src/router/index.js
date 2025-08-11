@@ -11,6 +11,7 @@ import Profile from '@/views/Profile.vue'
 import Orders from '@/views/Orders.vue'
 import Revenue from '@/views/admin/RevenueManagement.vue'
 import MessageManagement from '@/views/admin/MessageManagement.vue'
+import BookImport from '@/components/admin/BookImport.vue'
 import NotFound from '@/views/NotFound.vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useToastStore } from '@/stores/toastStore'
@@ -102,6 +103,12 @@ const router = createRouter({
       path: '/admin/messages',
       name: 'admin-messages',
       component: MessageManagement,
+      meta: { requiresAdmin: true }
+    },
+    {
+      path: '/admin/books/import',
+      name: 'admin-books-import',
+      component: BookImport,
       meta: { requiresAdmin: true }
     },
     {
