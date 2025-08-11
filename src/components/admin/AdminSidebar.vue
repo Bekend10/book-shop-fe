@@ -34,6 +34,20 @@
           </li>
           <li>
             <router-link
+              to="/admin/books/import"
+              :class="[
+                'w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors',
+                $route.name === 'admin-books-import'
+                  ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300' 
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              ]"
+            >
+              <Upload class="h-4 w-4" />
+              <span>Import sách từ Excel</span>
+            </router-link>
+          </li>
+          <li>
+            <router-link
               to="/admin/categories"
               :class="[
                 'w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors',
@@ -185,7 +199,8 @@ import {
   CreditCard, 
   Users, 
   TrendingUp,
-  MessageCircle
+  MessageCircle,
+  Upload
 } from 'lucide-vue-next'
 
 defineProps({

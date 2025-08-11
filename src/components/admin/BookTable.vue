@@ -23,6 +23,20 @@
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <!-- Empty state -->
+          <tr v-if="books.length === 0" class="text-center">
+            <td colspan="7" class="px-6 py-12">
+              <div class="flex flex-col items-center justify-center">
+                <svg class="w-16 h-16 text-gray-400 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Không có sách nào</h3>
+                <p class="text-gray-500 dark:text-gray-400">Hãy thêm sách mới hoặc thử thay đổi bộ lọc tìm kiếm.</p>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Book rows -->
           <tr v-for="book in books" :key="book.book_id">
             <td class="px-1 md:px-2 lg:px-4 py-2 md:py-3 whitespace-nowrap w-8 md:w-10 lg:w-12">
               <input type="checkbox" :value="book.book_id" :checked="selectedBooks.includes(book.book_id)"

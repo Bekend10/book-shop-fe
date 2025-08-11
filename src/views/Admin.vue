@@ -43,9 +43,35 @@
               </div>
             </div>
 
+            <!-- Search and Filter Component -->
+            <BookSearch
+              :search-query="bookStore.searchQuery"
+              :selected-category="bookStore.selectedCategory"
+              :categories="categories"
+              :sort-by="bookStore.sortBy"
+              @search="handleSearch"
+              @category-change="handleCategoryChange"
+              @sort-change="handleSortChange"
+            />
+
+            <!-- Books Statistics -->
+            <BooksStats
+              :total-books="bookStore.books.length"
+              :filtered-books="bookStore.filteredBooks.length"
+              :current-page-books="bookStore.paginatedBooks.length"
+              :books="bookStore.filteredBooks"
+              :search-query="bookStore.searchQuery"
+              :selected-category="bookStore.selectedCategory"
+              :sort-by="bookStore.sortBy"
+              @clear-filters="clearAllFilters"
+              @clear-search="clearSearch"
+              @clear-category="clearCategory"
+              @clear-sort="clearSort"
+            />
+
             <!-- Books Table (Refactored as Component) -->
             <BookTable
-              :books="books"
+              :books="bookStore.paginatedBooks"
               :selected-books="selectedBooks"
               :select-all="selectAll"
               @edit="editBook"
@@ -54,6 +80,15 @@
               @select-all="toggleSelectAll"
               @update-select-all="updateSelectAll"
               :format-price="formatPrice"
+            />
+
+            <!-- Pagination Component -->
+            <Pagination
+              :current-page="bookStore.currentPage"
+              :total-items="bookStore.filteredBooks.length"
+              :page-size="bookStore.pageSize"
+              @page-change="handlePageChange"
+              @page-size-change="handlePageSizeChange"
             />
           </div>
 
@@ -253,15 +288,22 @@ import ImageUploader from '@/components/admin/ImageUploader.vue'
 import axios from 'axios'
 const toastStore = useToastStore()
 import BookTable from '@/components/admin/BookTable.vue'
+import BookSearch from '@/components/admin/BookSearch.vue'
+import BooksStats from '@/components/admin/BooksStats.vue'
 import BookFormModal from '@/components/admin/BookFormModal.vue'
 import DeleteBookModal from '@/components/admin/DeleteBookModal.vue'
 import DeleteBooksModal from '@/components/admin/DeleteBooksModal.vue'
+import Pagination from '@/components/common/Pagination.vue'
 import { useToastStore } from '@/stores/toastStore'
+import { testBookStore } from '@/utils/testBookStore'
 
 const bookStore = useBookStore()
 const authorStore = useAuthorStore()
 const router = useRouter()
 const route = useRoute()
+
+// Run test
+const testStore = testBookStore()
 
 const books = computed(() => bookStore.books)
 const categories = computed(() => bookStore.categories)
@@ -517,13 +559,13 @@ const toggleSelectAll = () => {
   if (selectAll.value) {
     selectedBooks.value = []
   } else {
-    selectedBooks.value = books.value.map(book => book.book_id)
+    selectedBooks.value = bookStore.paginatedBooks.map(book => book.book_id)
   }
   selectAll.value = !selectAll.value
 }
 
 const updateSelectAll = () => {
-  selectAll.value = selectedBooks.value.length === books.value.length && books.value.length > 0
+  selectAll.value = selectedBooks.value.length === bookStore.paginatedBooks.length && bookStore.paginatedBooks.length > 0
 }
 
 const deleteMultipleBooks = () => {
@@ -582,6 +624,53 @@ const closeModal = () => {
   showEditModal.value = false
   editingBook.value = null
   resetForm()
+}
+
+// Search and pagination methods
+const handleSearch = (query) => {
+  bookStore.setSearchQuery(query)
+}
+
+const handleCategoryChange = (category) => {
+  bookStore.setCategory(category)
+}
+
+const handleSortChange = (sort) => {
+  if (typeof bookStore.setSortBy === 'function') {
+    bookStore.setSortBy(sort)
+  } else if (typeof bookStore.updateSortBy === 'function') {
+    bookStore.updateSortBy(sort)
+  } else {
+    console.error('No sort function available in bookStore')
+    console.log('Available methods:', Object.keys(bookStore))
+  }
+}
+
+const handlePageChange = (page) => {
+  bookStore.setCurrentPage(page)
+}
+
+const handlePageSizeChange = (size) => {
+  bookStore.setPageSize(size)
+}
+
+// Clear filter methods
+const clearAllFilters = () => {
+  bookStore.setSearchQuery('')
+  bookStore.setCategory('Tất cả')
+  bookStore.setSortBy('title-asc')
+}
+
+const clearSearch = () => {
+  bookStore.setSearchQuery('')
+}
+
+const clearCategory = () => {
+  bookStore.setCategory('Tất cả')
+}
+
+const clearSort = () => {
+  bookStore.setSortBy('title-asc')
 }
 </script>
 
