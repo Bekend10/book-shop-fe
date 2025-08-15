@@ -2,12 +2,12 @@
   <!-- Modal Overlay -->
   <div 
     v-if="isOpen" 
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 pt-16"
     @click="closeModal"
   >
     <!-- Modal Content -->
     <div 
-      class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+      class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-hidden my-8"
       @click.stop
     >
       <!-- Modal Header -->
@@ -26,7 +26,7 @@
       </div>
 
       <!-- Modal Body -->
-      <div class="px-6 py-4 overflow-y-auto max-h-[calc(90vh-120px)]">
+      <div class="px-6 py-4 overflow-y-auto max-h-[calc(80vh-120px)]">
         <div v-if="order" class="space-y-6">
           <!-- Order Info -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -322,6 +322,14 @@ const getPaymentMethodText = (methodId) => {
 </script>
 
 <style scoped>
+/* Modal positioning improvements */
+@media (max-width: 640px) {
+  .fixed.inset-0 {
+    padding: 1rem;
+    padding-top: 2rem;
+  }
+}
+
 /* Custom scrollbar for modal content */
 .overflow-y-auto::-webkit-scrollbar {
   width: 6px;

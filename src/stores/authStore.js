@@ -3,6 +3,7 @@ import axios from "@/utils/axios";
 import { mockAuth } from "@/utils/mockAuth";
 import { useToastStore } from "@/stores/toastStore";
 import { useCartStore } from "@/stores/cartStore";
+import { useNotificationStore } from "@/stores/notificationStore";
 // Sử dụng mock API cho development
 var USE_MOCK_API = false;
 
@@ -57,6 +58,14 @@ export const useAuthStore = defineStore("auth", {
         // Fetch cart after successful login
         const cartStore = useCartStore();
         await cartStore.initializeCart();
+
+        // Initialize notifications
+        try {
+          const notificationStore = useNotificationStore();
+          await notificationStore.initializeNotifications();
+        } catch (error) {
+          console.warn('Failed to initialize notifications:', error);
+        }
 
         // Connect to SignalR for real-time messaging
         try {
@@ -255,6 +264,14 @@ export const useAuthStore = defineStore("auth", {
         const cartStore = useCartStore();
         await cartStore.initializeCart();
 
+        // Initialize notifications
+        try {
+          const notificationStore = useNotificationStore();
+          await notificationStore.initializeNotifications();
+        } catch (error) {
+          console.warn('Failed to initialize notifications:', error);
+        }
+
         // Connect to SignalR for real-time messaging
         try {
           const { signalRService } = await import('@/services/signalRService');
@@ -295,6 +312,14 @@ export const useAuthStore = defineStore("auth", {
         // Fetch cart after successful Facebook login
         const cartStore = useCartStore();
         await cartStore.initializeCart();
+
+        // Initialize notifications
+        try {
+          const notificationStore = useNotificationStore();
+          await notificationStore.initializeNotifications();
+        } catch (error) {
+          console.warn('Failed to initialize notifications:', error);
+        }
 
         // Connect to SignalR for real-time messaging
         try {

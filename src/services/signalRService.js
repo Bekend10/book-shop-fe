@@ -1,5 +1,24 @@
 import * as signalR from '@microsoft/signalr'
 import { useMessageStore } from '@/stores/messageStore'
+import { useNotificationStore } from '@/stores/notificationStore'
+
+// Helper functions to extract order information (same as in notificationStore)
+function extractOrderId(messageContent) {
+  const match = messageContent.match(/#(\d+)/)
+  return match ? match[1] : null
+}
+
+function extractOrderTitle(messageContent) {
+  if (messageContent.includes('Đơn hàng')) {
+    return 'Đơn hàng mới'
+  }
+  return 'Thông báo'
+}
+
+function extractCustomerName(messageContent) {
+  const match = messageContent.match(/từ (.+)$/)
+  return match ? match[1] : 'Khách hàng'
+}
 
 class SignalRService {
   constructor() {
@@ -7,6 +26,7 @@ class SignalRService {
     this.isConnecting = false
     this.reconnectAttempts = 0
     this.maxReconnectAttempts = 5
+    this.notificationStore = null
   }
 
   getCurrentUserId() {
@@ -54,7 +74,7 @@ class SignalRService {
 
 
       this.connection = new signalR.HubConnectionBuilder()
-        .withUrl(`${import.meta.env.VITE_API_REALTIME_URL.replace('/api/v1', '')}/hubs/notification?userId=${userId}`, {
+        .withUrl(`${import.meta.env.VITE_API_REALTIME_URL.replace('/api/v1', '')}/hubs/notification?userId=${userId}&role=${user.role || 'user'}`, {
           accessTokenFactory: () => token,
           transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling
         })
@@ -138,6 +158,81 @@ class SignalRService {
         }
       })
 
+      // Lắng nghe notification từ backend
+      this.connection.on('ReceiveOrderNotification', async (message) => {
+        console.log('📦 Received order notification:', message)
+        
+        if (this.notificationStore) {
+          const notification = {
+            id: Date.now(),
+            title: extractOrderTitle(message),
+            message: message,
+            type: 'order',
+            isRead: false,
+            createdAt: new Date().toISOString(),
+            data: {
+              orderId: extractOrderId(message),
+              customerName: extractCustomerName(message)
+            }
+          }
+          
+          this.notificationStore.addNotification(notification)
+          this.showBrowserNotification(notification)
+          
+          // Trigger event để component có thể lắng nghe
+          window.dispatchEvent(new CustomEvent('newOrderNotification', {
+            detail: { message, notification }
+          }))
+          
+          // Refresh notifications từ backend để cập nhật chính xác
+          try {
+            await this.notificationStore.fetchNotifications()
+            console.log('🔄 Auto-refreshed notifications from backend')
+            
+            // Trigger event sau khi refresh
+            window.dispatchEvent(new CustomEvent('notificationsRefreshed', {
+              detail: { count: this.notificationStore.unreadCount }
+            }))
+          } catch (error) {
+            console.error('❌ Failed to auto-refresh notifications:', error)
+          }
+        }
+      })
+
+      this.connection.on('ReceiveNotification', async (message) => {
+        console.log('🔔 Received general notification:', message)
+        if (this.notificationStore) {
+          const notification = {
+            id: Date.now(),
+            title: 'Thông báo',
+            message: message,
+            type: 'info',
+            isRead: false,
+            createdAt: new Date().toISOString()
+          }
+          this.notificationStore.addNotification(notification)
+          this.showBrowserNotification(notification)
+          
+          // Trigger event để component có thể lắng nghe
+          window.dispatchEvent(new CustomEvent('newGeneralNotification', {
+            detail: { message, notification }
+          }))
+          
+          // Refresh notifications từ backend để cập nhật chính xác
+          try {
+            await this.notificationStore.fetchNotifications()
+            console.log('🔄 Auto-refreshed notifications from backend')
+            
+            // Trigger event sau khi refresh
+            window.dispatchEvent(new CustomEvent('notificationsRefreshed', {
+              detail: { count: this.notificationStore.unreadCount }
+            }))
+          } catch (error) {
+            console.error('❌ Failed to auto-refresh notifications:', error)
+          }
+        }
+      })
+
       // Sự kiện kết nối thành công
       this.connection.onreconnected(() => {
         messageStore.setConnectionStatus(true)
@@ -146,15 +241,18 @@ class SignalRService {
 
       // Sự kiện mất kết nối
       this.connection.onclose((error) => {
-        console.log('SignalR ngắt kết nối:', error)
         messageStore.setConnectionStatus(false)
         this.isConnecting = false
       })
 
       await this.connection.start()
-      console.log('SignalR đã kết nối thành công')
       
-   
+      // Initialize notification store if not already done
+      if (!this.notificationStore) {
+        this.notificationStore = useNotificationStore()
+      }
+
+      // User group joining is handled automatically in OnConnectedAsync
       messageStore.setConnectionStatus(true)
       this.reconnectAttempts = 0
 
@@ -183,8 +281,8 @@ class SignalRService {
       const messageStore = useMessageStore()
       
       try {
+        // User group leaving is handled automatically in OnDisconnectedAsync
         await this.connection.stop()
-        console.log('SignalR đã ngắt kết nối')
         messageStore.setConnectionStatus(false)
       } catch (error) {
         console.error('Lỗi khi ngắt kết nối SignalR:', error)
@@ -301,6 +399,33 @@ class SignalRService {
         icon: '/favicon.ico',
         tag: `message-${message.conversation_id || 'unknown'}`
       })
+    }
+  }
+
+  showBrowserNotification(notification) {
+    // Kiểm tra permission notification
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const title = notification.title || 'Thông báo mới'
+      const content = notification.message || notification.content || 'Bạn có thông báo mới'
+      
+      const browserNotification = new Notification(title, {
+        body: content,
+        icon: '/favicon.ico',
+        tag: `notification-${notification.id || Date.now()}`,
+        badge: '/favicon.ico',
+        requireInteraction: false
+      })
+
+      // Tự động đóng sau 5 giây
+      setTimeout(() => {
+        browserNotification.close()
+      }, 5000)
+
+      // Click vào notification để focus vào tab
+      browserNotification.onclick = function() {
+        window.focus()
+        this.close()
+      }
     }
   }
 

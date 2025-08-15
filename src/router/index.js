@@ -58,6 +58,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/notifications',
+      name: 'notifications',
+      component: () => import('@/views/Notifications.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/admin',
       name: 'admin',
       component: Admin,
@@ -106,11 +112,24 @@ const router = createRouter({
       meta: { requiresAdmin: true }
     },
     {
+      path: '/admin/notifications',
+      name: 'admin-notifications',
+      component: () => import('@/views/Notifications.vue'),
+      meta: { requiresAdmin: true }
+    },
+    {
       path: '/admin/books/import',
       name: 'admin-books-import',
       component: BookImport,
       meta: { requiresAdmin: true }
     },
+    // Temporary disable test route
+    // {
+    //   path: '/test-notification',
+    //   name: 'test-notification',
+    //   component: () => import('@/views/TestNotification.vue'),
+    //   meta: { requiresAuth: true }
+    // },
     {
       path: '/payment/vnpay/callback',
       name: 'vnpay-callback',
