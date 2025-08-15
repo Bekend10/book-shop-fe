@@ -160,6 +160,20 @@
               <span>Tin nhắn</span>
             </router-link>
           </li>
+          <li>
+            <router-link
+              to="/admin/notifications"
+              :class="[
+                'w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors',
+                ($route.name === 'admin-notifications' || activeSection === 'notifications')
+                  ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300' 
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              ]"
+            >
+              <Bell class="h-4 w-4" />
+              <span>Quản lý thông báo</span>
+            </router-link>
+          </li>
         </ul>
       </div>
 
@@ -200,7 +214,8 @@ import {
   Users, 
   TrendingUp,
   MessageCircle,
-  Upload
+  Upload,
+  Bell
 } from 'lucide-vue-next'
 
 defineProps({
