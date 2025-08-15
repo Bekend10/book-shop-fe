@@ -137,7 +137,7 @@ export const useOrderStore = defineStore("order", () => {
 
     try {
       const response = await axios.get(
-        `/orders/get-order-details?id=${orderId}`
+        `/orders/get-order-by-id?id=${orderId}`
       );
       if (response.data.status === 200) {
         return { success: true, data: response.data.data };

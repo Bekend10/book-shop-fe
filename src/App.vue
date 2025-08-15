@@ -13,16 +13,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onErrorCaptured } from 'vue'
+import { ref, onMounted, onErrorCaptured, watch } from 'vue'
 import { RouterView } from 'vue-router'
 import Navbar from '@/components/layout/Navbar.vue'
 import Footer from '@/components/layout/Footer.vue'
 import Toast from '@/components/Toast.vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useToastStore } from '@/stores/toastStore'
+import { useNotificationStore } from '@/stores/notificationStore'
+import { notificationService } from '@/services/notificationService'
 
 const authStore = useAuthStore()
 const toastStore = useToastStore()
+const notificationStore = useNotificationStore()
 const authLoading = ref(true)
 
 // Khởi tạo theme khi app load
@@ -54,6 +57,11 @@ onMounted(async () => {
   try {
     // Khởi tạo auth store từ localStorage
     await authStore.initializeAuth()
+    
+    // Khởi tạo notification system sau khi auth xong
+    if (authStore.isAuthenticated) {
+      await initializeNotificationSystem()
+    }
   } catch (error) {
     console.error('Failed to initialize auth:', error)
   } finally {
@@ -67,6 +75,7 @@ onMounted(async () => {
       if (e.newValue === null) {
         // Token bị xóa từ tab khác - logout
         authStore.logout()
+        notificationService.disconnectSignalR()
       } else if (e.newValue !== authStore.token) {
         // Token mới từ tab khác - cập nhật
         authStore.initializeAuth()
@@ -74,6 +83,36 @@ onMounted(async () => {
     }
   })
 })
+
+// Watch auth state để khởi tạo/hủy notification system
+watch(() => authStore.isAuthenticated, async (isAuthenticated) => {
+  if (isAuthenticated) {
+    await initializeNotificationSystem()
+  } else {
+    await notificationService.disconnectSignalR()
+    notificationStore.clearAllNotifications()
+  }
+})
+
+async function initializeNotificationSystem() {
+  try {
+    const userId = authStore.user?.user_id || authStore.user?.id
+    const userRole = authStore.user?.role
+    
+    if (userId) {
+      // Request notification permission
+      await notificationService.requestNotificationPermission()
+      
+      // Initialize SignalR connection with role
+      await notificationService.initializeSignalR(userId, userRole)
+      
+      // Load notifications from backend
+      await notificationStore.fetchNotifications()
+    }
+  } catch (error) {
+    console.error('❌ Failed to initialize notification system:', error)
+  }
+}
 
 // Xử lý lỗi toàn cục
 onErrorCaptured((error, instance, errorInfo) => {

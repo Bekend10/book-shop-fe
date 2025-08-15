@@ -39,6 +39,9 @@
           <!-- Messages -->
           <MessageIcon v-if="!isAdmin && authStore.isAuthenticated" />
           
+          <!-- Notifications -->
+          <NotificationIcon v-if="authStore.isAuthenticated" />
+          
           <!-- Cart -->
           <router-link v-if="!isAdmin" to="/cart" class="cart-link">
             <ShoppingCart class="cart-icon" />
@@ -79,6 +82,11 @@
                   <span>Thông tin cá nhân</span>
                 </button>
 
+                <button @click="goToNotifications" class="dropdown-item">
+                  <Bell class="dropdown-icon" />
+                  <span>Thông báo</span>
+                </button>
+
                 <div v-if="!isAdmin">
                   <button @click="goToOrders" class="dropdown-item">
                     <Package class="dropdown-icon" />
@@ -107,12 +115,13 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { BookOpen, Search, ShoppingCart, Sun, Moon, User, ChevronDown, UserCircle, Package, LogOut } from 'lucide-vue-next'
+import { BookOpen, Search, ShoppingCart, Sun, Moon, User, ChevronDown, UserCircle, Package, LogOut, Bell } from 'lucide-vue-next'
 import { useCartStore } from '@/stores/cartStore'
 import { useBookStore } from '@/stores/bookStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useToastStore } from '@/stores/toastStore'
 import MessageIcon from '@/components/MessageIcon.vue'
+import NotificationIcon from '@/components/NotificationIcon.vue'
 
 const router = useRouter()
 const cartStore = useCartStore()
@@ -148,6 +157,11 @@ const closeUserMenu = () => {
 const goToProfile = () => {
   showUserMenu.value = false
   router.push('/profile')
+}
+
+const goToNotifications = () => {
+  showUserMenu.value = false
+  router.push('/notifications')
 }
 
 const goToOrders = () => {
