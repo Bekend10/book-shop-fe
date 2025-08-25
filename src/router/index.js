@@ -17,7 +17,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { useToastStore } from '@/stores/toastStore'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory('/'),
   routes: [
     {
       path: '/',
@@ -176,9 +176,10 @@ router.beforeEach((to, from, next) => {
     }
   }
 
-  // Nếu đã đăng nhập và đang truy cập trang login, chuyển về trang chủ
+  // Nếu đã đăng nhập và đang truy cập trang login, chuyển về trang được redirect hoặc trang chủ
   if (to.name === 'login' && authStore.isAuthenticated) {
-    next({ name: 'home' })
+    const redirectPath = to.query.redirect || '/'
+    next(redirectPath)
     return
   }
 
