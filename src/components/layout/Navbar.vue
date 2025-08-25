@@ -143,6 +143,7 @@ const handleLogout = async () => {
   showUserMenu.value = false
   await authStore.logout()
   toastStore.success('Đăng xuất thành công. Hẹn gặp lại!')
+  // Không tự động redirect đến trang đăng nhập, chỉ về trang chủ
   router.push('/')
 }
 
