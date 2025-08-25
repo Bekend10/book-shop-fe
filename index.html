@@ -3,14 +3,47 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    
+    <!-- Mobile Web App Meta -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="BKD Book Shop" />
+    
+    <!-- Security for OAuth -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self' https:; 
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com; 
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+      font-src 'self' https://fonts.gstatic.com; 
+      connect-src 'self' https: wss: ws:; 
+      img-src 'self' data: https:; 
+      frame-src https://accounts.google.com;
+    " />
+    
+    <!-- Theme Colors -->
+    <meta name="theme-color" content="#3B82F6" />
+    <meta name="msapplication-TileColor" content="#3B82F6" />
+    
+    <!-- SEO & Description -->
+    <meta name="description" content="BKD Book Shop - Cửa hàng sách trực tuyến hàng đầu Việt Nam. Mua sách online với giá tốt nhất." />
+    <meta name="keywords" content="sách, book shop, cửa hàng sách, mua sách online, BKD" />
+    
     <title>BKD Book Shop - Cửa hàng sách trực tuyến</title>
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/logo.png" />
   </head>
   <body>
     <div id="app"></div>
