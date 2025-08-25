@@ -121,6 +121,14 @@
           <!-- Google Login -->
           <div class="social-button-container">
             <div id="g_id_signin" class="gg-signin"></div>
+            
+            <!-- Fallback button if Google SDK fails to load -->
+            <div id="google-fallback" style="display: none;" class="w-full">
+              <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
+                <p class="text-red-600 text-sm">Google đăng nhập tạm thời không khả dụng trên thiết bị này.</p>
+                <p class="text-red-500 text-xs mt-1">Vui lòng sử dụng email và mật khẩu để đăng nhập.</p>
+              </div>
+            </div>
           </div>
           
           <!-- Facebook Login -->
@@ -357,6 +365,9 @@ onMounted(async () => {
   script.async = true
   script.defer = true
   script.onload = () => { 
+    // Detect mobile device
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    
     window.google.accounts.id.initialize({
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
       callback: async (response) => {
@@ -371,16 +382,75 @@ onMounted(async () => {
             toastStore.error(result.data.msg || 'Đăng nhập Google thất bại!')
           }
         } catch (err) {
+          console.error('Google login error:', err)
           toastStore.error('Đăng nhập Google thất bại. Vui lòng thử lại.')
         }
       },
+      // Mobile-specific configurations
+      context: isMobile ? 'signin' : 'use',
+      ux_mode: isMobile ? 'popup' : 'popup',
+      auto_select: false,
+      cancel_on_tap_outside: true
     })
+
+    // Mobile-optimized button rendering
+    const buttonConfig = {
+      theme: 'outline', 
+      size: isMobile ? 'medium' : 'large',
+      width: isMobile ? '100%' : undefined,
+      text: 'signin_with',
+      shape: 'rectangular',
+      logo_alignment: 'left'
+    }
 
     window.google.accounts.id.renderButton(
       document.getElementById('g_id_signin'),
-      { theme: 'outline', size: 'large' }
+      buttonConfig
     )
+    
+    // For mobile, also enable One Tap if user hasn't opted out
+    if (!isMobile) {
+      window.google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          console.log('One Tap not displayed:', notification.getNotDisplayedReason())
+        }
+      })
+    }
   }
+  
+  script.onerror = () => {
+    console.error('Failed to load Google SDK')
+    // Show fallback message on mobile
+    const fallbackEl = document.getElementById('google-fallback')
+    const signinEl = document.getElementById('g_id_signin')
+    if (fallbackEl && signinEl) {
+      signinEl.style.display = 'none'
+      fallbackEl.style.display = 'block'
+    }
+    
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    if (isMobile) {
+      toastStore.warning('Google đăng nhập không khả dụng trên thiết bị này. Vui lòng sử dụng email/mật khẩu.')
+    } else {
+      toastStore.error('Không thể tải Google SDK. Vui lòng thử lại sau.')
+    }
+  }
+  
+  // Set a timeout to show fallback if Google takes too long to load
+  setTimeout(() => {
+    if (!window.google) {
+      const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      if (isMobile) {
+        const fallbackEl = document.getElementById('google-fallback')
+        const signinEl = document.getElementById('g_id_signin')
+        if (fallbackEl && signinEl) {
+          signinEl.style.display = 'none'
+          fallbackEl.style.display = 'block'
+        }
+      }
+    }
+  }, 5000)
+  
   document.head.appendChild(script)
 })
 </script>
@@ -491,6 +561,47 @@ label {
 /* Social button container */
 .social-button-container {
   position: relative;
+}
+
+/* Mobile-optimized Google signin */
+#g_id_signin {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .form {
+    padding: 1.5rem;
+    margin: 1rem;
+    border-radius: 1rem;
+  }
+  
+  .social-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  /* Google button mobile styling */
+  #g_id_signin > div {
+    width: 100% !important;
+  }
+  
+  #g_id_signin iframe {
+    width: 100% !important;
+    height: 48px !important;
+  }
+  
+  /* Ensure Google button is properly sized on mobile */
+  .g_id_signin {
+    width: 100% !important;
+  }
+}
+
+/* Fix for Google button iframe */
+#g_id_signin iframe {
+  border-radius: 0.5rem !important;
 }
 
 .google-signin-custom {
